@@ -365,7 +365,7 @@ class _ChatViewerScreenState extends State<ChatViewerScreen> {
   void _processGeminiImport(String jsonText) {
     try {
       final json = Map<String, dynamic>.from(
-        const JsonDecoder().convert(jsonText) as Map,
+        jsonDecode(jsonText) as Map,
       );
       
       if (FormatterService.isGeminiFormat(json)) {

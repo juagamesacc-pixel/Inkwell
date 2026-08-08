@@ -14,7 +14,6 @@ class FormatterService {
 
       final text = chunk['text'] as String? ?? '';
       final createTime = chunk['createTime'] as String? ?? DateTime.now().toIso8601String();
-      final isThought = chunk['isThought'] as bool? ?? false;
       
       // Extract thoughts from parts
       String thoughts = '';

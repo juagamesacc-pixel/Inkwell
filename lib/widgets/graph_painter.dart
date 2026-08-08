@@ -78,7 +78,7 @@ class GraphPainter extends CustomPainter {
     if (distance == 0) return;
 
     final normalized = direction / distance;
-    final arrowSize = 8.0;
+    const arrowSize = 8.0;
 
     final arrowPoint = target + normalized * 30;
     final leftArrow = arrowPoint + Offset(

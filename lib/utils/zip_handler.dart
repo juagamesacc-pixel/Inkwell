@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:archive/archive.dart';
 import '../models/note.dart';
 import '../models/chat_message.dart';
@@ -100,7 +99,6 @@ class ZipHandler {
     StorageService storage,
   ) async {
     final content = String.fromCharCodes(fileBytes);
-    final json = jsonDecode(content) as Map<String, dynamic>;
     
     final note = await storage.createNote(
       title: fileName.replaceAll('.json', ''),
