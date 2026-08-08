@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
-import 'package:url_launcher/url_launcher.dart';
-import '../services/link_service.dart';
 
 class CustomMarkdownBuilder extends MarkdownWidget {
   final String data;
@@ -16,13 +14,7 @@ class CustomMarkdownBuilder extends MarkdownWidget {
           data: data,
           selectable: selectable,
           onTapLink: (text, href, title) {
-            if (text.startsWith('[[') && text.endsWith(']])) {
-              // Internal wiki link
-              onLinkTap?.call();
-            } else if (href != null) {
-              // External link
-              launchUrl(Uri.parse(href));
-            }
+            onLinkTap?.call();
           },
         );
 
@@ -36,10 +28,9 @@ class CustomMarkdownBuilder extends MarkdownWidget {
         'code': _CodeBlockBuilder(),
       },
       onTapLink: (text, href, title) {
+        // Handle internal wiki links
         if (text.startsWith('[[') && text.endsWith(']]')) {
-          // Internal wiki link - handle navigation
-        } else if (href != null) {
-          launchUrl(Uri.parse(href));
+          // Navigate to internal note
         }
       },
     );
