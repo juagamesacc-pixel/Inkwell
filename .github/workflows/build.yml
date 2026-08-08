@@ -37,13 +37,13 @@ jobs:
       - name: Analyze code
         run: flutter analyze || true
 
-      - name: Build APK
-        run: flutter build apk --release --split-per-abi
+      - name: Build APK (arm64-v8a only)
+        run: flutter build apk --release --target-platform android-arm64
 
       - name: Upload APK artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: inkwell-apk
+          name: inkwell-apk-arm64
           path: build/app/outputs/flutter-apk/*.apk
           retention-days: 30
 
@@ -56,6 +56,9 @@ jobs:
           body: |
             ## What's New
             - Bug fixes and improvements
+            
+            ## Architecture
+            - arm64-v8a only
           files: build/app/outputs/flutter-apk/*.apk
           draft: false
           prerelease: false
