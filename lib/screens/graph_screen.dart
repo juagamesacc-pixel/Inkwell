@@ -1,14 +1,18 @@
-import 'dart:ui';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/note.dart';
-import '../services/storage_service.dart';
 import '../services/link_service.dart';
 import '../services/settings_service.dart';
-import '../widgets/graph_painter.dart';
+import '../services/storage_service.dart';
+import '../theme/colors.dart';
+import '../widgets/empty_state.dart';
+import '../widgets/glass/glass_action_button.dart';
+import '../widgets/glass/glass_app_bar.dart';
 import '../widgets/glass/glass_card.dart';
-import '../widgets/glass/animated_gradient_background.dart';
+import 'editor_screen.dart';
+import 'chat_viewer_screen.dart';
+import '../widgets/graph_painter.dart';
 
 class GraphScreen extends StatefulWidget {
   const GraphScreen({super.key});
@@ -24,15 +28,15 @@ class _GraphScreenState extends State<GraphScreen>
   List<Note> _notes = [];
   String? _selectedNoteId;
   Map<String, Offset> _nodePositions = {};
+  String _lastLayout = '';
 
   @override
   void initState() {
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 2),
+      duration: const Duration(seconds: 3),
     )..repeat();
-    _buildGraph();
   }
 
   @override
@@ -46,40 +50,43 @@ class _GraphScreenState extends State<GraphScreen>
     _notes = storage.notes;
     _graph = LinkService.buildLinkGraph(_notes);
     _layoutNodes();
-    setState(() {});
+    if (mounted) setState(() {});
   }
 
-  void _layoutNodes() {
-    final settings = context.read<SettingsService>();
-    final random = Random(42);
-    final center = Offset(
-      MediaQuery.of(context).size.width / 2,
-      MediaQuery.of(context).size.height / 2,
-    );
-
-    _nodePositions.clear();
-
-    switch (settings.graphLayout) {
-      case 'circular':
-        _layoutCircular(center);
-        break;
-      case 'tree':
-        _layoutTree(center);
-        break;
-      case 'force':
-      default:
-        _layoutForceDirected(center, random);
+  /// Lightweight sync used during build (no setState).
+  void _syncFrom(StorageService storage, String layout) {
+    if (_notes.length != storage.notes.length) {
+      _notes = storage.notes;
+      _graph = LinkService.buildLinkGraph(_notes);
+      _selectedNoteId = null;
+    }
+    if (_lastLayout != layout) {
+      _lastLayout = layout;
+      _layoutNodes();
     }
   }
 
-  void _layoutCircular(Offset center) {
-    final radius = min(
-      MediaQuery.of(context).size.width,
-      MediaQuery.of(context).size.height,
-    ) / 3;
+  void _layoutNodes() {
+    final size = MediaQuery.of(context).size;
+    final center = Offset(size.width / 2, size.height / 2);
 
+    _nodePositions.clear();
+    switch (_lastLayout) {
+      case 'circular':
+        _layoutCircular(center, size);
+        break;
+      case 'tree':
+        _layoutTree(center, size);
+        break;
+      default:
+        _layoutForceDirected(center, Random(42));
+    }
+  }
+
+  void _layoutCircular(Offset center, Size size) {
+    final radius = min(size.width, size.height) / 2.6;
     for (var i = 0; i < _notes.length; i++) {
-      final angle = (2 * pi * i) / _notes.length;
+      final angle = (2 * pi * i) / _notes.length - pi / 2;
       _nodePositions[_notes[i].id] = Offset(
         center.dx + radius * cos(angle),
         center.dy + radius * sin(angle),
@@ -87,25 +94,27 @@ class _GraphScreenState extends State<GraphScreen>
     }
   }
 
-  void _layoutTree(Offset center) {
-    final Map<String, int> levels = {};
-    final Set<String> visited = {};
+  void _layoutTree(Offset center, Size size) {
+    final levels = <String, int>{};
+    final visited = <String>{};
 
     void dfs(String nodeId, int level) {
       if (visited.contains(nodeId)) return;
       visited.add(nodeId);
       levels[nodeId] = level;
-
-      for (var childId in _graph[nodeId] ?? []) {
+      for (final childId in _graph[nodeId] ?? []) {
         dfs(childId, level + 1);
       }
     }
 
     final hasIncoming = _graph.values.expand((e) => e).toSet();
-    for (var note in _notes) {
+    for (final note in _notes) {
       if (!hasIncoming.contains(note.id)) {
         dfs(note.id, 0);
       }
+    }
+    for (final note in _notes) {
+      if (!levels.containsKey(note.id)) dfs(note.id, 0);
     }
 
     final byLevel = <int, List<String>>{};
@@ -114,42 +123,39 @@ class _GraphScreenState extends State<GraphScreen>
     });
 
     final maxLevel = byLevel.keys.isEmpty ? 0 : byLevel.keys.reduce(max);
-    final levelHeight = MediaQuery.of(context).size.height / (maxLevel + 2);
+    final levelHeight = size.height / (maxLevel + 2.5);
 
     byLevel.forEach((level, nodeIds) {
-      final levelWidth =
-          MediaQuery.of(context).size.width / (nodeIds.length + 1);
+      final levelWidth = size.width / (nodeIds.length + 1);
       for (var i = 0; i < nodeIds.length; i++) {
         _nodePositions[nodeIds[i]] = Offset(
           levelWidth * (i + 1),
-          levelHeight * (level + 1),
+          levelHeight * (level + 1.2),
         );
       }
     });
   }
 
   void _layoutForceDirected(Offset center, Random random) {
-    for (var note in _notes) {
+    for (final note in _notes) {
       _nodePositions[note.id] = Offset(
-        center.dx + (random.nextDouble() - 0.5) * 300,
-        center.dy + (random.nextDouble() - 0.5) * 300,
+        center.dx + (random.nextDouble() - 0.5) * 280,
+        center.dy + (random.nextDouble() - 0.5) * 280,
       );
     }
 
-    for (var iteration = 0; iteration < 50; iteration++) {
-      final forces = <String, Offset>{};
-
-      for (var note in _notes) {
-        forces[note.id] = Offset.zero;
-      }
+    for (var iteration = 0; iteration < 60; iteration++) {
+      final forces = <String, Offset>{
+        for (final note in _notes) note.id: Offset.zero,
+      };
 
       for (var i = 0; i < _notes.length; i++) {
         for (var j = i + 1; j < _notes.length; j++) {
           final pos1 = _nodePositions[_notes[i].id]!;
           final pos2 = _nodePositions[_notes[j].id]!;
           final diff = pos1 - pos2;
-          final distance = diff.distance.clamp(1.0, double.infinity);
-          final force = 5000 / (distance * distance);
+          final distance = diff.distance.clamp(1.0, double.infinity).toDouble();
+          final force = 6000 / (distance * distance);
           final direction = diff / distance;
 
           forces[_notes[i].id] = forces[_notes[i].id]! + direction * force;
@@ -157,25 +163,22 @@ class _GraphScreenState extends State<GraphScreen>
         }
       }
 
-      for (var entry in _graph.entries) {
+      for (final entry in _graph.entries) {
         final sourcePos = _nodePositions[entry.key];
         if (sourcePos == null) continue;
-
-        for (var targetId in entry.value) {
+        for (final targetId in entry.value) {
           final targetPos = _nodePositions[targetId];
           if (targetPos == null) continue;
-
           final diff = targetPos - sourcePos;
-          final distance = diff.distance.clamp(1.0, double.infinity);
-          final force = (distance - 100) * 0.01;
+          final distance = diff.distance.clamp(1.0, double.infinity).toDouble();
+          final force = (distance - 120) * 0.012;
           final direction = diff / distance;
-
           forces[entry.key] = forces[entry.key]! + direction * force;
           forces[targetId] = forces[targetId]! - direction * force;
         }
       }
 
-      for (var note in _notes) {
+      for (final note in _notes) {
         final force = forces[note.id]!;
         _nodePositions[note.id] = _nodePositions[note.id]! + force * 0.1;
       }
@@ -184,204 +187,260 @@ class _GraphScreenState extends State<GraphScreen>
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final settings = context.watch<SettingsService>();
+    final storage = context.watch<StorageService>();
 
-    return AnimatedGradientBackground(
-      child: Scaffold(
-        backgroundColor: Colors.transparent,
-        appBar: PreferredSize(
-          preferredSize: const Size.fromHeight(kToolbarHeight + 60),
-          child: ClipRect(
-            child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-              child: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      (isDark
-                              ? const Color(0xFF0F172A)
-                              : const Color(0xFFF8FAFC))
-                          .withOpacity(0.8),
-                      (isDark
-                              ? const Color(0xFF0F172A)
-                              : const Color(0xFFF8FAFC))
-                          .withOpacity(0.4),
-                    ],
-                  ),
-                ),
-                child: SafeArea(
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 0, 12, 0),
-                    child: Row(
-                      children: [
-                        Text(
-                          'Knowledge Graph',
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: -0.3,
-                            color:
-                                Theme.of(context).colorScheme.onSurface,
-                          ),
-                        ),
-                        const Spacer(),
-                        // Layout selector
-                        PopupMenuButton(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          itemBuilder: (context) => [
-                            const PopupMenuItem(
-                              value: 'force',
-                              child: Row(
-                                children: [
-                                  Icon(Icons.bubble_chart_rounded,
-                                      size: 18),
-                                  SizedBox(width: 12),
-                                  Text('Force Directed'),
-                                ],
-                              ),
-                            ),
-                            const PopupMenuItem(
-                              value: 'circular',
-                              child: Row(
-                                children: [
-                                  Icon(Icons.circle_outlined, size: 18),
-                                  SizedBox(width: 12),
-                                  Text('Circular'),
-                                ],
-                              ),
-                            ),
-                            const PopupMenuItem(
-                              value: 'tree',
-                              child: Row(
-                                children: [
-                                  Icon(Icons.account_tree_rounded,
-                                      size: 18),
-                                  SizedBox(width: 12),
-                                  Text('Tree'),
-                                ],
-                              ),
-                            ),
-                          ],
-                          onSelected: (layout) {
-                            context
-                                .read<SettingsService>()
-                                .setGraphLayout(layout);
-                            _buildGraph();
-                          },
-                          child: Container(
-                            padding: const EdgeInsets.all(10),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(12),
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .primary
-                                  .withOpacity(0.1),
-                            ),
-                            child: Icon(
-                              Icons.settings_rounded,
-                              size: 18,
-                              color:
-                                  Theme.of(context).colorScheme.primary,
-                            ),
-                          ),
-                        ),
-                      ],
+    _syncFrom(storage, settings.graphLayout);
+
+    final connectionCount = _graph.values.fold<int>(
+        0, (sum, targets) => sum + targets.length);
+
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      appBar: GlassAppBar(
+        title: 'Knowledge Graph',
+        subtitle: '${_notes.length} notes · $connectionCount connections',
+        actions: [
+          PopupMenuButton<String>(
+            tooltip: 'Layout',
+            initialValue: settings.graphLayout,
+            onSelected: (layout) {
+              context.read<SettingsService>().setGraphLayout(layout);
+              _lastLayout = layout;
+              _buildGraph();
+            },
+            itemBuilder: (context) => const [
+              PopupMenuItem(
+                value: 'force',
+                child: Row(children: [
+                  Icon(Icons.bubble_chart_rounded, size: 18),
+                  SizedBox(width: 12),
+                  Text('Force Directed'),
+                ]),
+              ),
+              PopupMenuItem(
+                value: 'circular',
+                child: Row(children: [
+                  Icon(Icons.circle_outlined, size: 18),
+                  SizedBox(width: 12),
+                  Text('Circular'),
+                ]),
+              ),
+              PopupMenuItem(
+                value: 'tree',
+                child: Row(children: [
+                  Icon(Icons.account_tree_rounded, size: 18),
+                  SizedBox(width: 12),
+                  Text('Tree'),
+                ]),
+              ),
+            ],
+            child: const GlassActionButton(
+              icon: Icons.layers_rounded,
+              color: AppColors.violet,
+            ),
+          ),
+          const SizedBox(width: 8),
+        ],
+      ),
+      body: Stack(
+        children: [
+          if (_notes.isEmpty)
+            const EmptyState(
+              illustration: 'assets/svg/empty_graph.svg',
+              title: 'No graph yet',
+              subtitle:
+                  'Create notes with [[wiki links]] to see your knowledge grow.',
+            )
+          else
+            AnimatedBuilder(
+              animation: _controller,
+              builder: (context, child) {
+                return InteractiveViewer(
+                  boundaryMargin: const EdgeInsets.all(120),
+                  minScale: 0.2,
+                  maxScale: 3.5,
+                  child: SizedBox(
+                    width: MediaQuery.of(context).size.width,
+                    height: MediaQuery.of(context).size.height,
+                    child: CustomPaint(
+                      painter: GraphPainter(
+                        notes: _notes,
+                        graph: _graph,
+                        nodePositions: _nodePositions,
+                        selectedNoteId: _selectedNoteId,
+                        animationValue: _controller.value,
+                        colorScheme: Theme.of(context).colorScheme,
+                      ),
+                      child: GestureDetector(
+                        behavior: HitTestBehavior.translucent,
+                        onTapUp: (details) =>
+                            _handleTap(details.localPosition),
+                      ),
                     ),
                   ),
-                ),
-              ),
+                );
+              },
             ),
-          ),
-        ),
-        body: _notes.isEmpty ? _buildEmptyState() : _buildGraphView(),
-      ),
-    );
-  }
-
-  Widget _buildEmptyState() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: LinearGradient(
-                colors: [
-                  Theme.of(context).colorScheme.primary.withOpacity(0.1),
-                  Theme.of(context).colorScheme.primary.withOpacity(0.05),
-                ],
-              ),
-            ),
-            child: Icon(
-              Icons.graphic_eq_rounded,
-              size: 64,
-              color: Theme.of(context).colorScheme.primary.withOpacity(0.4),
-            ),
-          ),
-          const SizedBox(height: 24),
-          Text(
-            'No notes to display',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.w600,
-              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
-            ),
-          ),
+          if (_notes.isNotEmpty) _buildLegend(context),
+          if (_selectedNoteId != null)
+            _buildSelectedCard(context, _selectedNoteId!),
         ],
       ),
     );
   }
 
-  Widget _buildGraphView() {
-    return AnimatedBuilder(
-      animation: _controller,
-      builder: (context, child) {
-        return InteractiveViewer(
-          boundaryMargin: const EdgeInsets.all(100),
-          minScale: 0.1,
-          maxScale: 4.0,
-          child: CustomPaint(
-            painter: GraphPainter(
-              notes: _notes,
-              graph: _graph,
-              nodePositions: _nodePositions,
-              selectedNoteId: _selectedNoteId,
-              animationValue: _controller.value,
-              colorScheme: Theme.of(context).colorScheme,
+  Widget _buildLegend(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Positioned(
+      left: 16,
+      bottom: 96,
+      child: GlassCard(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        borderRadius: BorderRadius.circular(16),
+        child: Row(
+          children: [
+            _legendDot(context, AppColors.markdownAccent, 'Notes'),
+            const SizedBox(width: 14),
+            _legendDot(context, AppColors.chatAccent, 'Chat'),
+            const SizedBox(width: 14),
+            _legendDot(context, AppColors.importedAccent, 'Imported'),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _legendDot(BuildContext context, Color color, String label) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 10,
+          height: 10,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            gradient: LinearGradient(
+              colors: [color, color.withOpacity(0.6)],
             ),
-            size: Size(
-              MediaQuery.of(context).size.width,
-              MediaQuery.of(context).size.height,
+            boxShadow: [
+              BoxShadow(color: color.withOpacity(0.4), blurRadius: 6),
+            ],
+          ),
+        ),
+        const SizedBox(width: 6),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 11,
+            fontWeight: FontWeight.w600,
+            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSelectedCard(BuildContext context, String noteId) {
+    final note = _notes.firstWhere(
+      (n) => n.id == noteId,
+      orElse: () => _notes.first,
+    );
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Positioned(
+      left: 16,
+      right: 16,
+      bottom: 96,
+      child: GlassCard(
+        padding: const EdgeInsets.all(16),
+        borderRadius: BorderRadius.circular(20),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(14),
+                gradient: LinearGradient(
+                  colors: [
+                    colorScheme.primary.withOpacity(0.25),
+                    colorScheme.primary.withOpacity(0.1),
+                  ],
+                ),
+              ),
+              child: Icon(
+                note.type == NoteType.markdown
+                    ? Icons.edit_note_rounded
+                    : note.type == NoteType.chat
+                        ? Icons.chat_bubble_rounded
+                        : Icons.article_rounded,
+                color: colorScheme.primary,
+              ),
             ),
-            child: GestureDetector(
-              onTapUp: (details) {
-                _handleTap(details.localPosition);
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    note.title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                      color: colorScheme.onSurface,
+                    ),
+                  ),
+                  const SizedBox(height: 3),
+                  Text(
+                    '${note.wordCount} words · ${note.type.label}',
+                    style: TextStyle(
+                      fontSize: 11.5,
+                      color: colorScheme.onSurface.withOpacity(0.45),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            GlassActionButton(
+              icon: Icons.open_in_new_rounded,
+              color: colorScheme.primary,
+              onPressed: () {
+                _openNote(note);
               },
             ),
-          ),
-        );
-      },
+            const SizedBox(width: 6),
+            IconButton(
+              icon: const Icon(Icons.close_rounded, size: 18),
+              onPressed: () => setState(() => _selectedNoteId = null),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
   void _handleTap(Offset position) {
-    for (var note in _notes) {
+    for (final note in _notes) {
       final nodePos = _nodePositions[note.id];
-      if (nodePos != null) {
-        final distance = (position - nodePos).distance;
-        if (distance < 30) {
-          setState(() {
-            _selectedNoteId = _selectedNoteId == note.id ? null : note.id;
-          });
-          return;
-        }
+      if (nodePos == null) continue;
+      if ((position - nodePos).distance < 34) {
+        setState(() {
+          _selectedNoteId = _selectedNoteId == note.id ? null : note.id;
+        });
+        return;
       }
     }
+    setState(() => _selectedNoteId = null);
+  }
+
+  void _openNote(Note note) {
+    final route = MaterialPageRoute(
+      builder: (context) => note.type == NoteType.markdown
+          ? EditorScreen(note: note)
+          : ChatViewerScreen(note: note),
+    );
+    Navigator.push(context, route);
   }
 }

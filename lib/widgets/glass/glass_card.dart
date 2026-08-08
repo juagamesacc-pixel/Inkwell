@@ -1,6 +1,8 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 
+/// A polished frosted-glass container with an inner highlight border,
+/// optional gradient and layered shadows.
 class GlassCard extends StatelessWidget {
   final Widget child;
   final double blur;
@@ -11,72 +13,126 @@ class GlassCard extends StatelessWidget {
   final EdgeInsets? margin;
   final Border? border;
   final List<BoxShadow>? shadows;
+  final VoidCallback? onTap;
+  final Gradient? overlayGradient;
+  final bool animated;
 
   const GlassCard({
     super.key,
     required this.child,
-    this.blur = 20,
-    this.opacity = 0.15,
+    this.blur = 22,
+    this.opacity = 0.18,
     this.gradient,
     this.borderRadius,
     this.padding,
     this.margin,
     this.border,
     this.shadows,
+    this.onTap,
+    this.overlayGradient,
+    this.animated = false,
   });
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final radius = borderRadius ?? BorderRadius.circular(20);
+    final accent = Theme.of(context).colorScheme.primary;
+    final radius = borderRadius ?? BorderRadius.circular(22);
 
-    return Container(
+    Widget card = Container(
       margin: margin ?? const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
         borderRadius: radius,
-        boxShadow: shadows ?? [
-          BoxShadow(
-            color: (isDark ? Colors.black : Colors.grey).withOpacity(0.15),
-            blurRadius: 20,
-            spreadRadius: 0,
-            offset: const Offset(0, 8),
-          ),
-        ],
+        boxShadow: shadows ??
+            [
+              BoxShadow(
+                color: (isDark ? Colors.black : const Color(0xFF64748B))
+                    .withOpacity(isDark ? 0.35 : 0.14),
+                blurRadius: 28,
+                spreadRadius: 0,
+                offset: const Offset(0, 10),
+              ),
+              BoxShadow(
+                color: accent.withOpacity(isDark ? 0.06 : 0.05),
+                blurRadius: 60,
+                offset: const Offset(0, 0),
+              ),
+            ],
       ),
       child: ClipRRect(
         borderRadius: radius,
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: blur, sigmaY: blur),
           child: Container(
-            padding: padding ?? const EdgeInsets.all(16),
+            padding: padding ?? const EdgeInsets.all(18),
             decoration: BoxDecoration(
-              gradient: gradient ?? (isDark
-                  ? LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [
-                        Colors.white.withOpacity(opacity),
-                        Colors.white.withOpacity(opacity * 0.5),
-                      ],
-                    )
-                  : LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [
-                        Colors.white.withOpacity(opacity * 2),
-                        Colors.white.withOpacity(opacity),
-                      ],
-                    )),
+              gradient: overlayGradient ??
+                  (gradient ??
+                      LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: isDark
+                            ? [
+                                Colors.white.withOpacity(opacity),
+                                Colors.white.withOpacity(opacity * 0.45),
+                              ]
+                            : [
+                                Colors.white.withOpacity(opacity * 1.8),
+                                Colors.white.withOpacity(opacity * 0.9),
+                              ],
+                      )),
               borderRadius: radius,
-              border: border ?? Border.all(
-                color: Colors.white.withOpacity(isDark ? 0.1 : 0.2),
-                width: 1,
-              ),
+              border: border ??
+                  Border.all(
+                    color: Colors.white.withOpacity(isDark ? 0.09 : 0.22),
+                    width: 1,
+                  ),
             ),
-            child: child,
+            child: Stack(
+              children: [
+                // Glossy top highlight.
+                Positioned(
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  height: 56,
+                  child: IgnorePointer(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.vertical(
+                          top: Radius.circular(radius.topLeft.x),
+                        ),
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Colors.white.withOpacity(isDark ? 0.06 : 0.28),
+                            Colors.transparent,
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                child,
+              ],
+            ),
           ),
         ),
       ),
     );
+
+    if (onTap != null) {
+      card = Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: radius,
+          child: card,
+        ),
+      );
+    }
+
+    return card;
   }
 }

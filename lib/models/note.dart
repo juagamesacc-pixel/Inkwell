@@ -10,6 +10,7 @@ class Note {
   final List<String> tags;
   final List<String> linkedNotes;
   final NoteType type;
+  final bool isPinned;
 
   Note({
     String? id,
@@ -21,9 +22,17 @@ class Note {
     this.tags = const [],
     this.linkedNotes = const [],
     this.type = NoteType.markdown,
+    this.isPinned = false,
   })  : id = id ?? const Uuid().v4(),
         createdAt = createdAt ?? DateTime.now(),
         modifiedAt = modifiedAt ?? DateTime.now();
+
+  int get wordCount =>
+      content.trim().isEmpty ? 0 : content.trim().split(RegExp(r'\s+')).length;
+
+  int get readingTime => (wordCount / 200).ceil();
+
+  bool get hasContent => content.trim().isNotEmpty;
 
   Note copyWith({
     String? title,
@@ -33,6 +42,7 @@ class Note {
     List<String>? tags,
     List<String>? linkedNotes,
     NoteType? type,
+    bool? isPinned,
   }) {
     return Note(
       id: id,
@@ -44,6 +54,7 @@ class Note {
       tags: tags ?? this.tags,
       linkedNotes: linkedNotes ?? this.linkedNotes,
       type: type ?? this.type,
+      isPinned: isPinned ?? this.isPinned,
     );
   }
 
@@ -58,23 +69,29 @@ class Note {
       'tags': tags,
       'linkedNotes': linkedNotes,
       'type': type.name,
+      'isPinned': isPinned,
     };
   }
 
   factory Note.fromMap(Map<String, dynamic> map) {
     return Note(
       id: map['id'],
-      title: map['title'],
-      content: map['content'],
-      filePath: map['filePath'],
-      createdAt: DateTime.parse(map['createdAt']),
-      modifiedAt: DateTime.parse(map['modifiedAt']),
-      tags: List<String>.from(map['tags'] ?? []),
-      linkedNotes: List<String>.from(map['linkedNotes'] ?? []),
+      title: map['title'] ?? 'Untitled',
+      content: map['content'] ?? '',
+      filePath: map['filePath'] ?? '',
+      createdAt: map['createdAt'] != null
+          ? DateTime.tryParse(map['createdAt']) ?? DateTime.now()
+          : DateTime.now(),
+      modifiedAt: map['modifiedAt'] != null
+          ? DateTime.tryParse(map['modifiedAt']) ?? DateTime.now()
+          : DateTime.now(),
+      tags: List<String>.from(map['tags'] ?? const []),
+      linkedNotes: List<String>.from(map['linkedNotes'] ?? const []),
       type: NoteType.values.firstWhere(
         (e) => e.name == map['type'],
         orElse: () => NoteType.markdown,
       ),
+      isPinned: map['isPinned'] ?? false,
     );
   }
 }
@@ -83,4 +100,17 @@ enum NoteType {
   markdown,
   chat,
   googleDocs,
+}
+
+extension NoteTypeX on NoteType {
+  String get label {
+    switch (this) {
+      case NoteType.markdown:
+        return 'Markdown';
+      case NoteType.chat:
+        return 'Chat';
+      case NoteType.googleDocs:
+        return 'Imported';
+    }
+  }
 }

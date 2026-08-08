@@ -67,9 +67,10 @@ class SearchService {
       if (index != -1 || note.title.toLowerCase().contains(lowerQuery)) {
         String? snippet;
         if (index != -1) {
-          final start = (index - snippetLength ~/ 2).clamp(0, note.content.length);
+          final start = (index - snippetLength ~/ 2).clamp(0, note.content.length).toInt();
           final end = (index + query.length + snippetLength ~/ 2)
-              .clamp(0, note.content.length);
+              .clamp(0, note.content.length)
+              .toInt();
           snippet = note.content.substring(start, end);
           if (start > 0) snippet = '...$snippet';
           if (end < note.content.length) snippet = '$snippet...';

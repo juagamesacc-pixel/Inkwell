@@ -8,10 +8,9 @@ import 'screens/home_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
     statusBarColor: Colors.transparent,
-    statusBarIconBrightness: Brightness.light,
   ));
 
   final storageService = StorageService();
@@ -38,13 +37,28 @@ class InkwellApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<SettingsService>(
       builder: (context, settings, child) {
-        return MaterialApp(
-          title: 'Inkwell',
-          debugShowCheckedModeBanner: false,
-          theme: AppTheme.light(settings.accentColor),
-          darkTheme: AppTheme.dark(settings.accentColor),
-          themeMode: settings.themeMode,
-          home: const HomeScreen(),
+        final brightness = settings.themeMode == ThemeMode.system
+            ? WidgetsBinding.instance.platformDispatcher.platformBrightness
+            : settings.themeMode == ThemeMode.dark
+                ? Brightness.dark
+                : Brightness.light;
+
+        return AnnotatedRegion<SystemUiOverlayStyle>(
+          value: brightness == Brightness.dark
+              ? const SystemUiOverlayStyle.light().copyWith(
+                  statusBarColor: Colors.transparent,
+                )
+              : const SystemUiOverlayStyle.dark().copyWith(
+                  statusBarColor: Colors.transparent,
+                ),
+          child: MaterialApp(
+            title: 'Inkwell',
+            debugShowCheckedModeBanner: false,
+            theme: AppTheme.light(settings.accentColor),
+            darkTheme: AppTheme.dark(settings.accentColor),
+            themeMode: settings.themeMode,
+            home: const HomeScreen(),
+          ),
         );
       },
     );

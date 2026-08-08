@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import '../models/note.dart';
+import '../theme/colors.dart';
 
 class GraphPainter extends CustomPainter {
   final List<Note> notes;
@@ -26,15 +27,7 @@ class GraphPainter extends CustomPainter {
   }
 
   void _drawEdges(Canvas canvas) {
-    final edgePaint = Paint()
-      ..color = Colors.grey.withOpacity(0.3)
-      ..strokeWidth = 1.5
-      ..style = PaintingStyle.stroke;
-
-    final selectedEdgePaint = Paint()
-      ..color = colorScheme.primary.withOpacity(0.6)
-      ..strokeWidth = 2.5
-      ..style = PaintingStyle.stroke;
+    final pulse = (sin(animationValue * 2 * pi) + 1) / 2;
 
     for (var entry in graph.entries) {
       final sourcePos = nodePositions[entry.key];
@@ -44,60 +37,87 @@ class GraphPainter extends CustomPainter {
         final targetPos = nodePositions[targetId];
         if (targetPos == null) continue;
 
-        final isSelected = selectedNoteId == entry.key || 
-                          selectedNoteId == targetId;
+        final isSelected =
+            selectedNoteId == entry.key || selectedNoteId == targetId;
+
+        final base = isSelected ? colorScheme.primary : const Color(0xFF94A3B8);
+        final paint = Paint()
+          ..color = base.withOpacity(isSelected ? 0.65 : 0.28 + pulse * 0.15)
+          ..strokeWidth = isSelected ? 2.5 : 1.4
+          ..style = PaintingStyle.stroke;
+
+        if (isSelected) {
+          paint.maskFilter = const MaskFilter.blur(BlurStyle.normal, 2);
+        }
 
         final path = Path();
         path.moveTo(sourcePos.dx, sourcePos.dy);
-
-        final controlPoint = Offset(
+        final mid = Offset(
           (sourcePos.dx + targetPos.dx) / 2,
-          (sourcePos.dy + targetPos.dy) / 2 - 50,
+          (sourcePos.dy + targetPos.dy) / 2 - 46,
         );
-
         path.quadraticBezierTo(
-          controlPoint.dx,
-          controlPoint.dy,
+          mid.dx,
+          mid.dy,
           targetPos.dx,
           targetPos.dy,
         );
+        canvas.drawPath(path, paint);
 
-        canvas.drawPath(
-          path,
-          isSelected ? selectedEdgePaint : edgePaint,
-        );
+        // Animated dash traveling along the edge.
+        final dashPaint = Paint()
+          ..color = (isSelected ? colorScheme.primary : const Color(0xFFCBD5E1))
+              .withOpacity(0.8)
+          ..strokeWidth = isSelected ? 3 : 2
+          ..strokeCap = StrokeCap.round;
+        final t = (animationValue + entry.key.hashCode % 10 / 10) % 1.0;
+        _drawDash(canvas, sourcePos, mid, targetPos, t, dashPaint);
 
-        _drawArrow(canvas, targetPos, sourcePos, isSelected ? selectedEdgePaint : edgePaint);
+        _drawArrow(canvas, targetPos, sourcePos, base.withOpacity(0.7));
       }
     }
   }
 
-  void _drawArrow(Canvas canvas, Offset target, Offset source, Paint paint) {
-    final direction = (source - target);
+  void _drawDash(Canvas canvas, Offset a, Offset c, Offset b, double t, Paint paint) {
+    final p0 = _quadPoint(a, c, b, t);
+    final p1 = _quadPoint(a, c, b, (t + 0.06).clamp(0.0, 1.0));
+    canvas.drawLine(p0, p1, paint);
+  }
+
+  Offset _quadPoint(Offset a, Offset c, Offset b, double t) {
+    final u = 1 - t;
+    return a * (u * u) + c * (2 * u * t) + b * (t * t);
+  }
+
+  void _drawArrow(Canvas canvas, Offset target, Offset source, Color color) {
+    final direction = source - target;
     final distance = direction.distance;
     if (distance == 0) return;
 
     final normalized = direction / distance;
-    const arrowSize = 8.0;
-
+    const arrowSize = 9.0;
     final arrowPoint = target + normalized * 30;
-    final leftArrow = arrowPoint + Offset(
-      -normalized.dy * arrowSize / 2 + normalized.dx * arrowSize / 2,
-      normalized.dx * arrowSize / 2 + normalized.dy * arrowSize / 2,
-    );
-    final rightArrow = arrowPoint + Offset(
-      normalized.dy * arrowSize / 2 + normalized.dx * arrowSize / 2,
-      -normalized.dx * arrowSize / 2 + normalized.dy * arrowSize / 2,
-    );
+    final left = arrowPoint +
+        Offset(
+          -normalized.dy * arrowSize / 2 + normalized.dx * arrowSize / 2,
+          normalized.dx * arrowSize / 2 + normalized.dy * arrowSize / 2,
+        );
+    final right = arrowPoint +
+        Offset(
+          normalized.dy * arrowSize / 2 + normalized.dx * arrowSize / 2,
+          -normalized.dx * arrowSize / 2 + normalized.dy * arrowSize / 2,
+        );
 
     final arrowPath = Path()
       ..moveTo(arrowPoint.dx, arrowPoint.dy)
-      ..lineTo(leftArrow.dx, leftArrow.dy)
-      ..lineTo(rightArrow.dx, rightArrow.dy)
+      ..lineTo(left.dx, left.dy)
+      ..lineTo(right.dx, right.dy)
       ..close();
 
-    canvas.drawPath(arrowPath, paint..style = PaintingStyle.fill);
-    paint.style = PaintingStyle.stroke;
+    canvas.drawPath(
+      arrowPath,
+      Paint()..color = color,
+    );
   }
 
   void _drawNodes(Canvas canvas) {
@@ -106,40 +126,57 @@ class GraphPainter extends CustomPainter {
       if (position == null) continue;
 
       final isSelected = selectedNoteId == note.id;
-      final radius = isSelected ? 28.0 : 22.0;
+      final radius = isSelected ? 26.0 : 20.0;
+      final baseColor = _getNodeColor(note.type);
 
-      if (isSelected) {
-        final glowPaint = Paint()
-          ..color = colorScheme.primary.withOpacity(0.2 + sin(animationValue * 2 * pi) * 0.1)
-          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 12);
-        canvas.drawCircle(position, radius + 8, glowPaint);
-      }
+      // Soft ambient glow.
+      final glowPaint = Paint()
+        ..shader = RadialGradient(
+          colors: [
+            baseColor.withOpacity(isSelected ? 0.5 : 0.3),
+            Colors.transparent,
+          ],
+        ).createShader(Rect.fromCircle(center: position, radius: radius * 3));
+      canvas.drawCircle(position, radius * (isSelected ? 2.6 : 2.1), glowPaint);
 
+      // Node body with vertical gradient.
       final nodePaint = Paint()
-        ..color = isSelected 
-            ? colorScheme.primary
-            : _getNodeColor(note.type)
-        ..style = PaintingStyle.fill;
-
+        ..shader = LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            Color.lerp(baseColor, Colors.white, isSelected ? 0.18 : 0.1)!,
+            baseColor,
+          ],
+        ).createShader(
+          Rect.fromCircle(center: position, radius: radius),
+        );
       canvas.drawCircle(position, radius, nodePaint);
 
+      // Ring border.
       final borderPaint = Paint()
-        ..color = Colors.white
+        ..color = Colors.white.withOpacity(isSelected ? 0.95 : 0.75)
         ..style = PaintingStyle.stroke
-        ..strokeWidth = 2;
+        ..strokeWidth = isSelected ? 2.5 : 1.6;
       canvas.drawCircle(position, radius, borderPaint);
 
+      // Selected halo ring.
+      if (isSelected) {
+        final ring = Paint()
+          ..color = baseColor.withOpacity(0.6 + sin(animationValue * 2 * pi) * 0.2)
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 2;
+        canvas.drawCircle(position, radius + 6 + sin(animationValue * 2 * pi) * 3, ring);
+      }
+
+      // Node glyph (emoji).
       final iconPainter = TextPainter(
         text: TextSpan(
           text: _getNodeIcon(note.type),
-          style: TextStyle(
-            fontSize: isSelected ? 18 : 14,
-            color: Colors.white,
-          ),
+          style: TextStyle(fontSize: isSelected ? 17 : 13),
         ),
         textDirection: TextDirection.ltr,
-      );
-      iconPainter.layout();
+      )..layout();
       iconPainter.paint(
         canvas,
         Offset(
@@ -148,21 +185,21 @@ class GraphPainter extends CustomPainter {
         ),
       );
 
+      // Label.
       final labelPainter = TextPainter(
         text: TextSpan(
           text: note.title,
           style: TextStyle(
-            fontSize: 11,
-            fontWeight: FontWeight.w500,
-            color: colorScheme.onSurface,
+            fontSize: isSelected ? 12.5 : 11,
+            fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+            color: isSelected ? colorScheme.primary : colorScheme.onSurface,
           ),
         ),
         textDirection: TextDirection.ltr,
         textAlign: TextAlign.center,
         maxLines: 2,
-        ellipsis: '...',
-      );
-      labelPainter.layout(maxWidth: 80);
+        ellipsis: '…',
+      )..layout(maxWidth: 90);
       labelPainter.paint(
         canvas,
         Offset(
@@ -176,11 +213,11 @@ class GraphPainter extends CustomPainter {
   Color _getNodeColor(NoteType type) {
     switch (type) {
       case NoteType.markdown:
-        return const Color(0xFF6366F1);
+        return AppColors.markdownAccent;
       case NoteType.chat:
-        return const Color(0xFF10B981);
+        return AppColors.chatAccent;
       case NoteType.googleDocs:
-        return const Color(0xFFF59E0B);
+        return AppColors.importedAccent;
     }
   }
 

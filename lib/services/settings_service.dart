@@ -142,4 +142,22 @@ class SettingsService extends ChangeNotifier {
     await _save();
     notifyListeners();
   }
+
+  Future<void> reset() async {
+    _themeMode = ThemeMode.dark;
+    _accentColor = const Color(0xFF6366F1);
+    _fontSize = 16.0;
+    _animationsEnabled = true;
+    _graphLayout = 'force';
+    _editorMode = 'split';
+    _chatBubbleStyle = 'comfortable';
+    _showThoughts = true;
+    _showTimestamps = true;
+    _fontFamily = 'Inter';
+    _animationSpeed = 1.0;
+    _showLineNumbers = false;
+    _wordWrap = true;
+    await _save();
+    notifyListeners();
+  }
 }
