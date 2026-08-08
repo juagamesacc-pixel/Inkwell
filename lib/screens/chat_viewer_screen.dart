@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -7,6 +8,9 @@ import '../models/chat_message.dart';
 import '../services/storage_service.dart';
 import '../services/settings_service.dart';
 import '../services/formatter_service.dart';
+import '../widgets/glass/glass_card.dart';
+import '../widgets/glass/glass_button.dart';
+import '../widgets/glass/animated_gradient_background.dart';
 import '../widgets/thought_bubble.dart';
 
 class ChatViewerScreen extends StatefulWidget {
@@ -44,80 +48,116 @@ class _ChatViewerScreenState extends State<ChatViewerScreen> {
     super.dispose();
   }
 
-  void _scrollToBottom() {
-    if (_scrollController.hasClients) {
-      _scrollController.animateTo(
-        _scrollController.position.maxScrollExtent,
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeOut,
-      );
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final settings = context.watch<SettingsService>();
-    
-    return Scaffold(
-      appBar: AppBar(
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              widget.note.title,
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return AnimatedGradientBackground(
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        appBar: PreferredSize(
+          preferredSize: const Size.fromHeight(kToolbarHeight + 60),
+          child: ClipRect(
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      (isDark
+                              ? const Color(0xFF0F172A)
+                              : const Color(0xFFF8FAFC))
+                          .withOpacity(0.8),
+                      (isDark
+                              ? const Color(0xFF0F172A)
+                              : const Color(0xFFF8FAFC))
+                          .withOpacity(0.4),
+                    ],
+                  ),
+                ),
+                child: SafeArea(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(4, 0, 4, 0),
+                    child: Row(
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.arrow_back_ios_new_rounded),
+                          onPressed: () => Navigator.pop(context),
+                        ),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                widget.note.title,
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w700,
+                                  letterSpacing: -0.3,
+                                ),
+                              ),
+                              Text(
+                                '${_messages.length} messages',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onSurface
+                                      .withOpacity(0.4),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        _buildAppBarButton(
+                          context,
+                          Icons.import_export_rounded,
+                          () => _convertFromGemini(),
+                        ),
+                        _buildAppBarButton(
+                          context,
+                          Icons.download_rounded,
+                          () => _exportChat(),
+                        ),
+                        const SizedBox(width: 8),
+                      ],
+                    ),
+                  ),
+                ),
               ),
             ),
-            Text(
-              '${_messages.length} messages',
-              style: TextStyle(
-                fontSize: 12,
-                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
-              ),
-            ),
-          ],
+          ),
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.import_export),
-            onPressed: _convertFromGemini,
-            tooltip: 'Import Gemini Format',
-          ),
-          IconButton(
-            icon: const Icon(Icons.download),
-            onPressed: _exportChat,
-            tooltip: 'Export',
-          ),
-          PopupMenuButton(
-            itemBuilder: (context) => [
-              const PopupMenuItem(
-                value: 'edit',
-                child: ListTile(
-                  leading: Icon(Icons.edit),
-                  title: Text('Edit JSON'),
-                ),
-              ),
-              const PopupMenuItem(
-                value: 'share',
-                child: ListTile(
-                  leading: Icon(Icons.share),
-                  title: Text('Share'),
-                ),
-              ),
-            ],
-            onSelected: (value) {
-              // TODO: Handle menu actions
-            },
-          ),
-        ],
+        body: _isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : _messages.isEmpty
+                ? _buildEmptyState()
+                : _buildChatView(settings),
       ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : _messages.isEmpty
-              ? _buildEmptyState()
-              : _buildChatView(settings),
+    );
+  }
+
+  Widget _buildAppBarButton(
+      BuildContext context, IconData icon, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 4),
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+        ),
+        child: Icon(
+          icon,
+          size: 18,
+          color: Theme.of(context).colorScheme.primary,
+        ),
+      ),
     );
   }
 
@@ -126,61 +166,86 @@ class _ChatViewerScreenState extends State<ChatViewerScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.chat_bubble_outline,
-            size: 80,
-            color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
-          ),
-          const SizedBox(height: 16),
+          Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: LinearGradient(
+                colors: [
+                  Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                  Theme.of(context).colorScheme.primary.withOpacity(0.05),
+                ],
+              ),
+            ),
+            child: Icon(
+              Icons.chat_bubble_rounded,
+              size: 64,
+              color: Theme.of(context).colorScheme.primary.withOpacity(0.4),
+            ),
+          ).animate().scale(
+                duration: const Duration(milliseconds: 500),
+                curve: Curves.elasticOut,
+              ),
+          const SizedBox(height: 24),
           Text(
             'No messages yet',
-            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.w600,
               color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
             ),
-          ),
+          ).animate().fadeIn(delay: 200.ms),
           const SizedBox(height: 8),
           Text(
             'Import a Gemini export to get started',
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.3),
+            style: TextStyle(
+              fontSize: 14,
+              color:
+                  Theme.of(context).colorScheme.onSurface.withOpacity(0.3),
             ),
-          ),
-          const SizedBox(height: 24),
-          FilledButton.icon(
+          ).animate().fadeIn(delay: 300.ms),
+          const SizedBox(height: 32),
+          GlassButton(
             onPressed: _convertFromGemini,
-            icon: const Icon(Icons.upload_file),
-            label: const Text('Import Gemini Export'),
-          ),
+            child: const Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.upload_file_rounded, size: 18, color: Colors.white),
+                SizedBox(width: 8),
+                Text(
+                  'Import Gemini Export',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ).animate().fadeIn(delay: 400.ms).slideY(begin: 0.2, end: 0),
         ],
       ),
     );
   }
 
   Widget _buildChatView(SettingsService settings) {
-    return Column(
-      children: [
-        Expanded(
-          child: ListView.builder(
-            controller: _scrollController,
-            padding: EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: settings.chatBubbleStyle == 'spacious' ? 24 : 12,
-            ),
-            itemCount: _messages.length,
-            itemBuilder: (context, index) {
-              final message = _messages[index];
-              return _buildMessageCard(message, settings, index);
-            },
-          ),
-        ),
-      ],
+    return ListView.builder(
+      controller: _scrollController,
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
+      physics: const BouncingScrollPhysics(),
+      itemCount: _messages.length,
+      itemBuilder: (context, index) {
+        final message = _messages[index];
+        return _buildMessageCard(message, settings, index);
+      },
     );
   }
 
-  Widget _buildMessageCard(ChatMessage message, SettingsService settings, int index) {
+  Widget _buildMessageCard(
+      ChatMessage message, SettingsService settings, int index) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final isCompact = settings.chatBubbleStyle == 'compact';
     final isSpacious = settings.chatBubbleStyle == 'spacious';
-    
+
     return Padding(
       padding: EdgeInsets.only(
         bottom: isSpacious ? 24 : isCompact ? 8 : 16,
@@ -189,109 +254,176 @@ class _ChatViewerScreenState extends State<ChatViewerScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // User message card
-          Card(
-            margin: const EdgeInsets.only(left: 48),
-            child: Padding(
-              padding: EdgeInsets.all(isCompact ? 12 : 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      CircleAvatar(
-                        radius: 12,
-                        backgroundColor: Theme.of(context).colorScheme.primary,
-                        child: const Icon(Icons.person, size: 14, color: Colors.white),
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        'You',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: isCompact ? 12 : 14,
-                          color: Theme.of(context).colorScheme.primary,
+          GlassCard(
+            margin: const EdgeInsets.only(left: 32),
+            padding: EdgeInsets.all(isCompact ? 14 : 18),
+            borderRadius: BorderRadius.circular(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8),
+                        gradient: LinearGradient(
+                          colors: [
+                            Theme.of(context).colorScheme.primary.withOpacity(0.2),
+                            Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                          ],
                         ),
                       ),
-                      const Spacer(),
-                      if (settings.showTimestamps)
-                        Text(
-                          _formatTime(message.timestamp),
-                          style: TextStyle(
-                            fontSize: 10,
-                            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
-                          ),
-                        ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    message.userMessage,
-                    style: TextStyle(
-                      fontSize: settings.fontSize,
-                      height: 1.5,
+                      child: Icon(
+                        Icons.person_rounded,
+                        size: 14,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
                     ),
+                    const SizedBox(width: 8),
+                    Text(
+                      'You',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w700,
+                        fontSize: isCompact ? 12 : 14,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                    ),
+                    const Spacer(),
+                    if (settings.showTimestamps)
+                      Text(
+                        _formatTime(message.timestamp),
+                        style: TextStyle(
+                          fontSize: 10,
+                          color: Theme.of(context)
+                              .colorScheme
+                              .onSurface
+                              .withOpacity(0.3),
+                        ),
+                      ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  message.userMessage,
+                  style: TextStyle(
+                    fontSize: settings.fontSize,
+                    height: 1.6,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ),
-          
+          ).animate().fadeIn(
+                delay: Duration(milliseconds: 30 * (index % 10)),
+                duration: const Duration(milliseconds: 400),
+              ).slideX(
+                begin: 0.1,
+                end: 0,
+                delay: Duration(milliseconds: 30 * (index % 10)),
+                duration: const Duration(milliseconds: 400),
+                curve: Curves.easeOut,
+              ),
+
           // Thoughts (if enabled)
           if (settings.showThoughts && message.thoughts.isNotEmpty)
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8),
+              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 32),
               child: ThoughtBubble(thoughts: message.thoughts),
             ),
-          
+
           // Model response card
-          Card(
-            margin: const EdgeInsets.only(right: 48),
-            color: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.3),
-            child: Padding(
-              padding: EdgeInsets.all(isCompact ? 12 : 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      CircleAvatar(
-                        radius: 12,
-                        backgroundColor: Theme.of(context).colorScheme.secondary,
-                        child: const Icon(Icons.smart_toy, size: 14, color: Colors.white),
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        'Model',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: isCompact ? 12 : 14,
-                          color: Theme.of(context).colorScheme.secondary,
+          GlassCard(
+            margin: const EdgeInsets.only(right: 32),
+            padding: EdgeInsets.all(isCompact ? 14 : 18),
+            borderRadius: BorderRadius.circular(20),
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: isDark
+                  ? [
+                      Theme.of(context)
+                          .colorScheme
+                          .primaryContainer
+                          .withOpacity(0.15),
+                      Theme.of(context)
+                          .colorScheme
+                          .primaryContainer
+                          .withOpacity(0.05),
+                    ]
+                  : [
+                      Theme.of(context)
+                          .colorScheme
+                          .primaryContainer
+                          .withOpacity(0.2),
+                      Theme.of(context)
+                          .colorScheme
+                          .primaryContainer
+                          .withOpacity(0.1),
+                    ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8),
+                        gradient: LinearGradient(
+                          colors: [
+                            Theme.of(context)
+                                .colorScheme
+                                .secondary
+                                .withOpacity(0.2),
+                            Theme.of(context)
+                                .colorScheme
+                                .secondary
+                                .withOpacity(0.1),
+                          ],
                         ),
                       ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    message.modelResponse,
-                    style: TextStyle(
-                      fontSize: settings.fontSize,
-                      height: 1.5,
+                      child: Icon(
+                        Icons.smart_toy_rounded,
+                        size: 14,
+                        color: Theme.of(context).colorScheme.secondary,
+                      ),
                     ),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Model',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w700,
+                        fontSize: isCompact ? 12 : 14,
+                        color: Theme.of(context).colorScheme.secondary,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  message.modelResponse,
+                  style: TextStyle(
+                    fontSize: settings.fontSize,
+                    height: 1.6,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ),
+          ).animate().fadeIn(
+                delay: Duration(milliseconds: 30 * (index % 10) + 15),
+                duration: const Duration(milliseconds: 400),
+              ).slideX(
+                begin: -0.1,
+                end: 0,
+                delay: Duration(milliseconds: 30 * (index % 10) + 15),
+                duration: const Duration(milliseconds: 400),
+                curve: Curves.easeOut,
+              ),
         ],
       ),
-    ).animate().fadeIn(
-      duration: Duration(milliseconds: 300 * settings.animationSpeed.toInt()),
-      delay: Duration(milliseconds: 50 * index % 5),
-    ).slideY(
-      begin: 0.1,
-      end: 0,
-      duration: Duration(milliseconds: 300 * settings.animationSpeed.toInt()),
-      curve: Curves.easeOut,
     );
   }
 
@@ -303,6 +435,7 @@ class _ChatViewerScreenState extends State<ChatViewerScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: const Text('Import Gemini Export'),
         content: const Text(
           'Paste your Gemini export JSON below to convert it to the chat format.',
@@ -326,22 +459,49 @@ class _ChatViewerScreenState extends State<ChatViewerScreen> {
 
   void _showImportDialog() {
     final controller = TextEditingController();
-    
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: const Text('Paste Gemini JSON'),
         content: SizedBox(
           width: double.maxFinite,
           height: 300,
-          child: TextField(
-            controller: controller,
-            maxLines: null,
-            expands: true,
-            textAlignVertical: TextAlignVertical.top,
-            decoration: const InputDecoration(
-              hintText: 'Paste your Gemini export JSON here...',
-              border: OutlineInputBorder(),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(12),
+            child: TextField(
+              controller: controller,
+              maxLines: null,
+              expands: true,
+              textAlignVertical: TextAlignVertical.top,
+              style: const TextStyle(fontFamily: 'JetBrainsMono', fontSize: 12),
+              decoration: InputDecoration(
+                hintText: 'Paste your Gemini export JSON here...',
+                hintStyle: TextStyle(
+                  color: Theme.of(context)
+                      .colorScheme
+                      .onSurface
+                      .withOpacity(0.3),
+                ),
+                filled: true,
+                fillColor:
+                    Theme.of(context).colorScheme.primary.withOpacity(0.05),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(
+                    color:
+                        Theme.of(context).colorScheme.primary.withOpacity(0.2),
+                  ),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(
+                    color:
+                        Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                  ),
+                ),
+              ),
             ),
           ),
         ),
@@ -367,29 +527,34 @@ class _ChatViewerScreenState extends State<ChatViewerScreen> {
       final json = Map<String, dynamic>.from(
         jsonDecode(jsonText) as Map,
       );
-      
+
       if (FormatterService.isGeminiFormat(json)) {
         final chatJson = FormatterService.convertGeminiToChat(json);
         final messages = FormatterService.parseChatJson(chatJson);
-        
+
         setState(() {
           _messages = messages;
         });
-        
-        // Save to storage
+
         context.read<StorageService>().saveChatMessages(widget.note, messages);
-        
+
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Successfully imported chat!'),
-            backgroundColor: Colors.green,
+          SnackBar(
+            content: const Text('Successfully imported chat!'),
+            backgroundColor: Colors.green.shade600,
+            behavior: SnackBarBehavior.floating,
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           ),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Invalid Gemini export format'),
-            backgroundColor: Colors.red,
+          SnackBar(
+            content: const Text('Invalid Gemini export format'),
+            backgroundColor: Colors.red.shade600,
+            behavior: SnackBarBehavior.floating,
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           ),
         );
       }
@@ -397,16 +562,23 @@ class _ChatViewerScreenState extends State<ChatViewerScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Error parsing JSON: $e'),
-          backgroundColor: Colors.red,
+          backgroundColor: Colors.red.shade600,
+          behavior: SnackBarBehavior.floating,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         ),
       );
     }
   }
 
   void _exportChat() {
-    // TODO: Implement export
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Export coming soon!')),
+      SnackBar(
+        content: const Text('Export coming soon!'),
+        behavior: SnackBarBehavior.floating,
+        shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
     );
   }
 }

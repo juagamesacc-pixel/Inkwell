@@ -1,142 +1,292 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import '../models/note.dart';
 
-class NoteCard extends StatelessWidget {
+class NoteCard extends StatefulWidget {
   final Note note;
   final VoidCallback? onTap;
   final VoidCallback? onDelete;
+  final int index;
 
   const NoteCard({
     super.key,
     required this.note,
     this.onTap,
     this.onDelete,
+    this.index = 0,
   });
 
   @override
-  Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  _buildTypeIcon(context),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          note.title,
-                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          _formatDate(note.modifiedAt),
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  if (onDelete != null)
-                    IconButton(
-                      icon: Icon(
-                        Icons.delete_outline,
-                        size: 20,
-                        color: Theme.of(context).colorScheme.error.withOpacity(0.7),
-                      ),
-                      onPressed: onDelete,
-                    ),
-                ],
-              ),
-              if (note.content.isNotEmpty) ...[
-                const SizedBox(height: 12),
-                Text(
-                  note.content.substring(0, note.content.length.clamp(0, 150)),
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
-                    height: 1.5,
-                  ),
-                  maxLines: 3,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
-              if (note.tags.isNotEmpty) ...[
-                const SizedBox(height: 12),
-                Wrap(
-                  spacing: 6,
-                  runSpacing: 6,
-                  children: note.tags.take(5).map((tag) {
-                    return Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.primaryContainer,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Text(
-                        tag,
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: Theme.of(context).colorScheme.primary,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    );
-                  }).toList(),
-                ),
-              ],
-            ],
-          ),
-        ),
-      ),
+  State<NoteCard> createState() => _NoteCardState();
+}
+
+class _NoteCardState extends State<NoteCard>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _hoverController;
+  late Animation<double> _scaleAnimation;
+  bool _isHovered = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _hoverController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 200),
+    );
+    _scaleAnimation = Tween<double>(begin: 1, end: 1.02).animate(
+      CurvedAnimation(parent: _hoverController, curve: Curves.easeOut),
     );
   }
 
-  Widget _buildTypeIcon(BuildContext context) {
-    IconData icon;
-    Color color;
+  @override
+  void dispose() {
+    _hoverController.dispose();
+    super.dispose();
+  }
 
-    switch (note.type) {
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final noteType = widget.note.type;
+
+    // Gradient colors based on note type
+    List<Color> gradientColors;
+    Color accentColor;
+    IconData typeIcon;
+
+    switch (noteType) {
       case NoteType.markdown:
-        icon = Icons.note;
-        color = Theme.of(context).colorScheme.primary;
+        gradientColors = isDark
+            ? [
+                const Color(0xFF6366F1).withOpacity(0.15),
+                const Color(0xFF818CF8).withOpacity(0.08),
+              ]
+            : [
+                const Color(0xFF6366F1).withOpacity(0.1),
+                const Color(0xFF818CF8).withOpacity(0.05),
+              ];
+        accentColor = const Color(0xFF6366F1);
+        typeIcon = Icons.edit_note_rounded;
         break;
       case NoteType.chat:
-        icon = Icons.chat_bubble;
-        color = Theme.of(context).colorScheme.secondary;
+        gradientColors = isDark
+            ? [
+                const Color(0xFF10B981).withOpacity(0.15),
+                const Color(0xFF34D399).withOpacity(0.08),
+              ]
+            : [
+                const Color(0xFF10B981).withOpacity(0.1),
+                const Color(0xFF34D399).withOpacity(0.05),
+              ];
+        accentColor = const Color(0xFF10B981);
+        typeIcon = Icons.chat_bubble_rounded;
         break;
       case NoteType.googleDocs:
-        icon = Icons.article;
-        color = Theme.of(context).colorScheme.tertiary;
+        gradientColors = isDark
+            ? [
+                const Color(0xFFF59E0B).withOpacity(0.15),
+                const Color(0xFFFBBF24).withOpacity(0.08),
+              ]
+            : [
+                const Color(0xFFF59E0B).withOpacity(0.1),
+                const Color(0xFFFBBF24).withOpacity(0.05),
+              ];
+        accentColor = const Color(0xFFF59E0B);
+        typeIcon = Icons.article_rounded;
         break;
     }
 
-    return Container(
-      padding: const EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Icon(
-        icon,
-        size: 22,
-        color: color,
+    return MouseRegion(
+      onEnter: (_) {
+        setState(() => _isHovered = true);
+        _hoverController.forward();
+      },
+      onExit: (_) {
+        setState(() => _isHovered = false);
+        _hoverController.reverse();
+      },
+      child: AnimatedBuilder(
+        animation: _scaleAnimation,
+        builder: (context, child) {
+          return Transform.scale(
+            scale: _scaleAnimation.value,
+            child: GestureDetector(
+              onTap: widget.onTap,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(24),
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+                  child: Container(
+                    margin: const EdgeInsets.only(bottom: 12),
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(24),
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: gradientColors,
+                      ),
+                      border: Border.all(
+                        color: _isHovered
+                            ? accentColor.withOpacity(0.3)
+                            : Colors.white.withOpacity(isDark ? 0.08 : 0.2),
+                        width: 1,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: _isHovered
+                              ? accentColor.withOpacity(0.15)
+                              : Colors.black.withOpacity(isDark ? 0.2 : 0.05),
+                          blurRadius: _isHovered ? 24 : 12,
+                          offset: const Offset(0, 8),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            // Type badge
+                            Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(14),
+                                gradient: LinearGradient(
+                                  colors: [
+                                    accentColor.withOpacity(0.2),
+                                    accentColor.withOpacity(0.1),
+                                  ],
+                                ),
+                                border: Border.all(
+                                  color: accentColor.withOpacity(0.2),
+                                  width: 1,
+                                ),
+                              ),
+                              child: Icon(
+                                typeIcon,
+                                size: 18,
+                                color: accentColor,
+                              ),
+                            ),
+                            const SizedBox(width: 14),
+                            // Title and date
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    widget.note.title,
+                                    style: TextStyle(
+                                      fontSize: 17,
+                                      fontWeight: FontWeight.w700,
+                                      letterSpacing: -0.3,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSurface,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    _formatDate(widget.note.modifiedAt),
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w500,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSurface
+                                          .withOpacity(0.4),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            // Delete button
+                            if (widget.onDelete != null)
+                              AnimatedOpacity(
+                                opacity: _isHovered ? 1 : 0,
+                                duration: const Duration(milliseconds: 200),
+                                child: IconButton(
+                                  icon: Icon(
+                                    Icons.delete_outline_rounded,
+                                    size: 18,
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .error
+                                        .withOpacity(0.7),
+                                  ),
+                                  onPressed: widget.onDelete,
+                                  style: IconButton.styleFrom(
+                                    backgroundColor: Theme.of(context)
+                                        .colorScheme
+                                        .error
+                                        .withOpacity(0.1),
+                                    padding: const EdgeInsets.all(8),
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                        if (widget.note.content.isNotEmpty) ...[
+                          const SizedBox(height: 16),
+                          Text(
+                            widget.note.content.substring(
+                                0,
+                                widget.note.content.length.clamp(0, 120)),
+                            style: TextStyle(
+                              fontSize: 14,
+                              height: 1.6,
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onSurface
+                                  .withOpacity(0.6),
+                            ),
+                            maxLines: 3,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                        if (widget.note.tags.isNotEmpty) ...[
+                          const SizedBox(height: 14),
+                          Wrap(
+                            spacing: 8,
+                            runSpacing: 8,
+                            children: widget.note.tags.take(4).map((tag) {
+                              return Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                  vertical: 5,
+                                ),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(10),
+                                  color: accentColor.withOpacity(0.1),
+                                  border: Border.all(
+                                    color: accentColor.withOpacity(0.15),
+                                    width: 0.5,
+                                  ),
+                                ),
+                                child: Text(
+                                  tag,
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w600,
+                                    color: accentColor.withOpacity(0.8),
+                                  ),
+                                ),
+                              );
+                            }).toList(),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          );
+        },
       ),
     );
   }
@@ -157,4 +307,17 @@ class NoteCard extends StatelessWidget {
       return 'Just now';
     }
   }
+}
+
+class AnimatedBuilder extends AnimatedWidget {
+  final Widget Function(BuildContext, Widget?) builder;
+
+  const AnimatedBuilder({
+    super.key,
+    required Animation<double> animation,
+    required this.builder,
+  }) : super(listenable: animation);
+
+  @override
+  Widget build(BuildContext context) => builder(context, null);
 }
