@@ -172,19 +172,6 @@ class _GlassNavButtonState extends State<_GlassNavButton>
   }
 }
 
-class AnimatedBuilder extends AnimatedWidget {
-  final Widget Function(BuildContext, Widget?) builder;
-
-  const AnimatedBuilder({
-    super.key,
-    required Animation<double> animation,
-    required this.builder,
-  }) : super(listenable: animation);
-
-  @override
-  Widget build(BuildContext context) => builder(context, null);
-}
-
 class GlassNavItem {
   final IconData icon;
   final IconData selectedIcon;
