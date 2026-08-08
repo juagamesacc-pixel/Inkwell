@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:archive/archive.dart';
 import '../models/note.dart';
 import '../models/chat_message.dart';
