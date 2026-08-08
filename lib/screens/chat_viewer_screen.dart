@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -7,7 +6,6 @@ import '../models/chat_message.dart';
 import '../services/storage_service.dart';
 import '../services/settings_service.dart';
 import '../services/formatter_service.dart';
-import '../widgets/chat_bubble.dart';
 import '../widgets/thought_bubble.dart';
 
 class ChatViewerScreen extends StatefulWidget {

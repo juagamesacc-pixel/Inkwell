@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_animate/flutter_animate.dart';
-import 'package:flutter_markdown/flutter_markdown.dart';
 import '../models/note.dart';
 import '../services/storage_service.dart';
 import '../services/link_service.dart';

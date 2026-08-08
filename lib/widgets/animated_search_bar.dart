@@ -56,7 +56,7 @@ class _AnimatedSearchBarState extends State<AnimatedSearchBar>
 
   @override
   Widget build(BuildContext context) {
-    return _AnimatedBuilder(
+    return AnimatedBuilder(
       animation: _expandAnimation,
       builder: (context, child) {
         return Container(
@@ -110,14 +110,14 @@ class _AnimatedSearchBarState extends State<AnimatedSearchBar>
   }
 }
 
-class _AnimatedBuilder extends AnimatedWidget {
+class AnimatedBuilder extends AnimatedWidget {
   final Widget Function(BuildContext, Widget?) builder;
 
-  const _AnimatedBuilder({
+  const AnimatedBuilder({
     super.key,
-    required super.listenable,
+    required Animation<double> animation,
     required this.builder,
-  });
+  }) : super(listenable: animation);
 
   @override
   Widget build(BuildContext context) {

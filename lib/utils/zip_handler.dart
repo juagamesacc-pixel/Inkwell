@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'dart:convert';
 import 'package:archive/archive.dart';
 import '../models/note.dart';

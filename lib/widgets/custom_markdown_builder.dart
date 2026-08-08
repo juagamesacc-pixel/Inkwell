@@ -1,22 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 
-class CustomMarkdownBuilder extends MarkdownWidget {
+class CustomMarkdownBuilder extends StatelessWidget {
   final String data;
+  final VoidCallback? onLinkTap;
 
   const CustomMarkdownBuilder({
     super.key,
     required this.data,
-    MarkdownStyleSheet? stylesheet,
-    bool selectable = true,
-    VoidCallback? onLinkTap,
-  }) : super(
-          data: data,
-          selectable: selectable,
-          onTapLink: (text, href, title) {
-            onLinkTap?.call();
-          },
-        );
+    this.onLinkTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -28,9 +21,8 @@ class CustomMarkdownBuilder extends MarkdownWidget {
         'code': _CodeBlockBuilder(),
       },
       onTapLink: (text, href, title) {
-        // Handle internal wiki links
         if (text.startsWith('[[') && text.endsWith(']]')) {
-          // Navigate to internal note
+          onLinkTap?.call();
         }
       },
     );

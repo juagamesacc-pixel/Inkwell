@@ -1,4 +1,3 @@
-import '../models/note.dart';
 import '../services/link_service.dart';
 
 class MarkdownParser {

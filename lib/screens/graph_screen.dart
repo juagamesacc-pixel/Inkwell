@@ -1,9 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import '../models/note.dart';
-import '../models/link.dart';
 import '../services/storage_service.dart';
 import '../services/link_service.dart';
 import '../services/settings_service.dart';
@@ -146,7 +144,7 @@ class _GraphScreenState extends State<GraphScreen>
           final pos1 = _nodePositions[_notes[i].id]!;
           final pos2 = _nodePositions[_notes[j].id]!;
           final diff = pos1 - pos2;
-          final distance = diff.distance.clamp(1, double.infinity);
+          final distance = diff.distance.clamp(1.0, double.infinity);
           final force = 5000 / (distance * distance);
           final direction = diff / distance;
 
@@ -164,9 +162,9 @@ class _GraphScreenState extends State<GraphScreen>
           if (targetPos == null) continue;
 
           final diff = targetPos - sourcePos;
-          final distance = diff.distance;
+          final distance = diff.distance.clamp(1.0, double.infinity);
           final force = (distance - 100) * 0.01;
-          final direction = diff / distance.clamp(1, double.infinity);
+          final direction = diff / distance;
 
           forces[entry.key] = forces[entry.key]! + direction * force;
           forces[targetId] = forces[targetId]! - direction * force;
@@ -231,14 +229,14 @@ class _GraphScreenState extends State<GraphScreen>
                 ],
               ),
             )
-          : InteractiveViewer(
-              boundaryMargin: const EdgeInsets.all(100),
-              minScale: 0.1,
-              maxScale: 4.0,
-              child: AnimatedBuilder(
-                animation: _controller,
-                builder: (context, child) {
-                  return CustomPaint(
+          : AnimatedBuilder(
+              animation: _controller,
+              builder: (context, child) {
+                return InteractiveViewer(
+                  boundaryMargin: const EdgeInsets.all(100),
+                  minScale: 0.1,
+                  maxScale: 4.0,
+                  child: CustomPaint(
                     painter: GraphPainter(
                       notes: _notes,
                       graph: _graph,
@@ -247,17 +245,18 @@ class _GraphScreenState extends State<GraphScreen>
                       animationValue: _controller.value,
                       colorScheme: Theme.of(context).colorScheme,
                     ),
+                    size: Size(
+                      MediaQuery.of(context).size.width,
+                      MediaQuery.of(context).size.height,
+                    ),
                     child: GestureDetector(
-                      onPanUpdate: (details) {
-                        setState(() {});
-                      },
                       onTapUp: (details) {
                         _handleTap(details.localPosition);
                       },
                     ),
-                  );
-                },
-              ),
+                  ),
+                );
+              },
             ),
     );
   }
