@@ -11,6 +11,10 @@ jobs:
   build:
     runs-on: ubuntu-latest
     
+    defaults:
+      run:
+        working-directory: inkwell_app
+    
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -28,10 +32,13 @@ jobs:
           channel: 'stable'
           cache: true
 
+      - name: Remove existing android dir
+        run: rm -rf android
+
       - name: Create Flutter project structure
         run: |
           flutter create --org com.inkwell --project-name inkwell temp_project
-          cp -r temp_project/android/* android/
+          cp -r temp_project/android .
           rm -rf temp_project
 
       - name: Get dependencies
@@ -50,7 +57,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: inkwell-apk-arm64
-          path: build/app/outputs/flutter-apk/*.apk
+          path: inkwell_app/build/app/outputs/flutter-apk/*.apk
           retention-days: 30
 
       - name: Create Release
@@ -65,7 +72,7 @@ jobs:
             
             ## Architecture
             - arm64-v8a only
-          files: build/app/outputs/flutter-apk/*.apk
+          files: inkwell_app/build/app/outputs/flutter-apk/*.apk
           draft: false
           prerelease: false
         env:
