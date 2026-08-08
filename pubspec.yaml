@@ -1,0 +1,67 @@
+name: inkwell
+description: An elegant Obsidian-inspired note-taking app with chat viewer
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  provider: ^6.1.1
+  path_provider: ^2.1.1
+  isar: ^3.1.0+1
+  isar_flutter_libs: ^3.1.0+1
+  flutter_markdown: ^0.6.18
+  google_fonts: ^6.1.0
+  archive: ^3.4.9
+  uuid: ^4.2.1
+  intl: ^0.18.1
+  flutter_animate: ^4.3.0
+  shimmer: ^3.0.0
+  flutter_staggered_animations: ^1.1.1
+  dynamic_color: ^1.6.6
+  shared_preferences: ^2.2.2
+  permission_handler: ^11.1.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.1
+  isar_generator: ^3.1.0+1
+  build_runner: ^2.4.7
+
+flutter:
+  uses-material-design: true
+  
+  assets:
+    - assets/json/
+    - assets/fonts/
+
+  fonts:
+    - family: Inter
+      fonts:
+        - asset: assets/fonts/Inter/Inter-Regular.ttf
+        - asset: assets/fonts/Inter/Inter-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/Inter/Inter-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Inter/Inter-Medium.ttf
+          weight: 500
+    - family: JetBrainsMono
+      fonts:
+        - asset: assets/fonts/JetBrainsMono/JetBrainsMono-Regular.ttf
+        - asset: assets/fonts/JetBrainsMono/JetBrainsMono-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/JetBrainsMono/JetBrainsMono-Medium.ttf
+          weight: 500
+    - family: FiraCode
+      fonts:
+        - asset: assets/fonts/FiraCode/FiraCode-Regular.ttf
+        - asset: assets/fonts/FiraCode/FiraCode-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/FiraCode/FiraCode-Medium.ttf
+          weight: 500
