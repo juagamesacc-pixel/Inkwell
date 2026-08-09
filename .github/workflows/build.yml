@@ -27,7 +27,7 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.22.0'
+          flutter-version: '3.44.8'
           channel: 'stable'
           cache: true
 
@@ -40,13 +40,11 @@ jobs:
 
       - name: Fix Kotlin stdlib version conflict
         run: |
-          cat >> android/app/build.gradle <<'EOF'
+          cat >> android/app/build.gradle.kts <<'EOF'
 
           configurations.all {
               resolutionStrategy {
-                  force 'org.jetbrains.kotlin:kotlin-stdlib:1.8.22'
-                  force 'org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.22'
-                  force 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.22'
+                  force("org.jetbrains.kotlin:kotlin-stdlib:2.3.20")
               }
           }
           EOF
