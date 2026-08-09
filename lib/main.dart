@@ -45,11 +45,15 @@ class InkwellApp extends StatelessWidget {
 
         return AnnotatedRegion<SystemUiOverlayStyle>(
           value: brightness == Brightness.dark
-              ? const SystemUiOverlayStyle.light().copyWith(
+              ? const SystemUiOverlayStyle(
                   statusBarColor: Colors.transparent,
+                  statusBarIconBrightness: Brightness.light,
+                  statusBarBrightness: Brightness.dark,
                 )
-              : const SystemUiOverlayStyle.dark().copyWith(
+              : const SystemUiOverlayStyle(
                   statusBarColor: Colors.transparent,
+                  statusBarIconBrightness: Brightness.dark,
+                  statusBarBrightness: Brightness.light,
                 ),
           child: MaterialApp(
             title: 'Inkwell',

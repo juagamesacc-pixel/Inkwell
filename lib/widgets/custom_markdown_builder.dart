@@ -96,7 +96,6 @@ class CustomMarkdownBuilder extends StatelessWidget {
         borderRadius: BorderRadius.circular(8),
       ),
       listBullet: TextStyle(color: scheme.primary, fontSize: 16),
-      listNumbers: TextStyle(color: scheme.primary, fontSize: 16),
       horizontalRuleDecoration: BoxDecoration(
         border: Border(
           top: BorderSide(
@@ -115,9 +114,6 @@ class CustomMarkdownBuilder extends StatelessWidget {
         color: scheme.onSurface,
       ),
       tableBody: TextStyle(color: scheme.onSurface),
-      tableHeadDecoration: BoxDecoration(
-        color: scheme.surfaceContainerHighest.withOpacity(0.5),
-      ),
       tableBorder: TableBorder.all(
         color: scheme.outline.withOpacity(0.6),
         borderRadius: BorderRadius.circular(10),

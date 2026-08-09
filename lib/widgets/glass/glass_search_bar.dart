@@ -135,7 +135,7 @@ class _GlassSearchBarState extends State<GlassSearchBar> {
               if (widget.controller.text.isNotEmpty)
                 IconButton(
                   icon: Icon(
-                    Icons.close_circle_rounded,
+                    Icons.cancel_rounded,
                     size: 20,
                     color: Theme.of(context)
                         .colorScheme
