@@ -27,20 +27,20 @@ class StatsCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(16),
         child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+          filter: ImageFilter.blur(sigmaX: 14, sigmaY: 14),
           child: Container(
-            padding: const EdgeInsets.all(14),
+            padding: const EdgeInsets.all(11),
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(16),
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: isDark
                     ? [
-                        Colors.white.withOpacity(0.09),
-                        Colors.white.withOpacity(0.04),
+                        Colors.white.withOpacity(0.08),
+                        Colors.white.withOpacity(0.03),
                       ]
                     : [
                         Colors.white.withOpacity(0.9),
@@ -48,62 +48,50 @@ class StatsCard extends StatelessWidget {
                       ],
               ),
               border: Border.all(
-                color: Colors.white.withOpacity(isDark ? 0.1 : 0.3),
+                color: Colors.white.withOpacity(isDark ? 0.09 : 0.28),
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(isDark ? 0.3 : 0.06),
-                  blurRadius: 18,
-                  offset: const Offset(0, 8),
+                  color: Colors.black.withOpacity(isDark ? 0.25 : 0.05),
+                  blurRadius: 12,
+                  offset: const Offset(0, 5),
                 ),
               ],
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(12),
-                        gradient: gradient,
-                        boxShadow: [
-                          BoxShadow(
-                            color: tint.withOpacity(0.35),
-                            blurRadius: 12,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
+                Container(
+                  padding: const EdgeInsets.all(7),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    gradient: gradient,
+                    boxShadow: [
+                      BoxShadow(
+                        color: tint.withOpacity(0.3),
+                        blurRadius: 8,
+                        offset: const Offset(0, 3),
                       ),
-                      child: Icon(icon, size: 18, color: Colors.white),
-                    ),
-                    const Spacer(),
-                    Container(
-                      width: 6,
-                      height: 6,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: tint.withOpacity(0.5),
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
+                  child: Icon(icon, size: 15, color: Colors.white),
                 ),
-                const SizedBox(height: 14),
+                const SizedBox(height: 9),
                 Text(
                   value,
                   style: TextStyle(
-                    fontSize: 24,
+                    fontSize: 20,
                     fontWeight: FontWeight.w800,
                     letterSpacing: -0.5,
                     color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
-                const SizedBox(height: 2),
+                const SizedBox(height: 1),
                 Text(
                   label,
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: 11.5,
                     fontWeight: FontWeight.w500,
                     color: Theme.of(context)
                         .colorScheme

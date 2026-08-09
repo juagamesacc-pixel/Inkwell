@@ -1,16 +1,21 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:ui';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../models/note.dart';
+import '../services/formatter_service.dart';
 import '../services/link_service.dart';
 import '../services/settings_service.dart';
 import '../services/storage_service.dart';
 import '../widgets/custom_markdown_builder.dart';
 import '../widgets/glass/glass_action_button.dart';
 import '../widgets/glass/glass_app_bar.dart';
+import '../widgets/glass/glass_button.dart';
 import '../widgets/glass/animated_gradient_background.dart';
+import 'chat_viewer_screen.dart';
 
 enum _EditorMode { edit, split, preview }
 
@@ -124,6 +129,13 @@ class _EditorScreenState extends State<EditorScreen> {
               icon: Icons.link_rounded,
               tooltip: 'Links & backlinks',
               onPressed: _showLinks,
+            ),
+            const SizedBox(width: 4),
+            GlassActionButton(
+              icon: Icons.chat_bubble_rounded,
+              tooltip: 'Import chat JSON',
+              color: Theme.of(context).colorScheme.tertiary,
+              onPressed: _importChatJson,
             ),
             const SizedBox(width: 4),
             _ModeSwitch(
@@ -654,6 +666,241 @@ class _EditorScreenState extends State<EditorScreen> {
         fontWeight: FontWeight.w800,
         letterSpacing: 1.2,
         color: colorScheme.onSurface.withOpacity(0.35),
+      ),
+    );
+  }
+
+  // ---- Chat JSON import --------------------------------------------------
+
+  void _importChatJson() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) => _chatImportSheet(context),
+    );
+  }
+
+  Widget _chatImportSheet(BuildContext context) {
+    final controller = TextEditingController();
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Container(
+      padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+      child: ClipRRect(
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 30, sigmaY: 30),
+          child: Container(
+            padding: const EdgeInsets.fromLTRB(24, 14, 24, 28),
+            decoration: BoxDecoration(
+              color: colorScheme.surface.withOpacity(0.94),
+              borderRadius:
+                  const BorderRadius.vertical(top: Radius.circular(32)),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Container(
+                    width: 44,
+                    height: 5,
+                    decoration: BoxDecoration(
+                      color: colorScheme.onSurface.withOpacity(0.15),
+                      borderRadius: BorderRadius.circular(3),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Text(
+                  'Import chat JSON',
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: -0.4,
+                    color: colorScheme.onSurface,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  'Choose a Gemini export file or paste chat JSON below. '
+                  'It will be saved as a new chat note.',
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: colorScheme.onSurface.withOpacity(0.45),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                GlassButton(
+                  width: double.infinity,
+                  onPressed: () {
+                    Navigator.pop(context);
+                    _pickChatJsonFile();
+                  },
+                  child: const Text(
+                    'Choose file',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 14),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Container(
+                        height: 1,
+                        color: colorScheme.outline.withOpacity(0.4),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      child: Text(
+                        'OR PASTE JSON',
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 1.2,
+                          color: colorScheme.onSurface.withOpacity(0.35),
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: Container(
+                        height: 1,
+                        color: colorScheme.outline.withOpacity(0.4),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 14),
+                Container(
+                  height: 220,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(14),
+                    color: colorScheme.surface.withOpacity(0.6),
+                    border: Border.all(
+                      color: colorScheme.outline.withOpacity(0.5),
+                    ),
+                  ),
+                  child: TextField(
+                    controller: controller,
+                    maxLines: null,
+                    expands: true,
+                    textAlignVertical: TextAlignVertical.top,
+                    style: const TextStyle(
+                      fontFamily: 'JetBrainsMono',
+                      fontSize: 12,
+                    ),
+                    decoration: InputDecoration(
+                      hintText: '{ "chunkedPrompt": { "chunks": [...] } }',
+                      hintStyle: TextStyle(
+                        color: colorScheme.onSurface.withOpacity(0.3),
+                      ),
+                      border: InputBorder.none,
+                      filled: false,
+                      contentPadding: const EdgeInsets.all(14),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 14),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: const Text('Cancel'),
+                      ),
+                    ),
+                    Expanded(
+                      child: FilledButton.icon(
+                        onPressed: () {
+                          final text = controller.text.trim();
+                          Navigator.pop(context);
+                          if (text.isNotEmpty) _processChatJsonImport(text);
+                        },
+                        icon: const Icon(Icons.bolt_rounded, size: 18),
+                        label: const Text('Convert'),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _pickChatJsonFile() async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['json'],
+      withData: true,
+    );
+    if (result == null || result.files.isEmpty) return;
+    final bytes = result.files.single.bytes;
+    if (bytes == null) return;
+    _processChatJsonImport(utf8.decode(bytes, allowMalformed: true));
+  }
+
+  Future<void> _processChatJsonImport(String jsonText) async {
+    try {
+      final decoded = jsonDecode(jsonText);
+      if (decoded is! Map) {
+        _showToast('Not a valid JSON object');
+        return;
+      }
+      final json = Map<String, dynamic>.from(decoded);
+
+      Map<String, dynamic> chatJson;
+      if (FormatterService.isGeminiFormat(json)) {
+        chatJson = FormatterService.convertGeminiToChat(json);
+      } else if (FormatterService.isValidChatFormat(json)) {
+        chatJson = json;
+      } else {
+        _showToast('Unrecognized JSON format');
+        return;
+      }
+
+      final messages = FormatterService.parseChatJson(chatJson);
+      if (messages.isEmpty) {
+        _showToast('No messages found in JSON');
+        return;
+      }
+
+      _saveDebounce?.cancel();
+      final title = _titleController.text.trim().isEmpty
+          ? 'Chat'
+          : _titleController.text.trim();
+
+      final note = await _storage.createNote(
+        title: title,
+        content: jsonEncode(chatJson),
+        type: NoteType.chat,
+      );
+
+      if (!mounted) return;
+      _showToast('Imported ${messages.length} messages');
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => ChatViewerScreen(note: note)),
+      );
+    } catch (_) {
+      _showToast('Could not parse JSON');
+    }
+  }
+
+  void _showToast(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 2),
       ),
     );
   }

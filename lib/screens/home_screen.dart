@@ -14,7 +14,6 @@ import '../widgets/app_logo.dart';
 import '../widgets/empty_state.dart';
 import '../widgets/note_card.dart';
 import '../widgets/stats_card.dart';
-import '../widgets/glass/glass_action_button.dart';
 import '../widgets/glass/glass_bottom_nav.dart';
 import '../widgets/glass/glass_button.dart';
 import '../widgets/glass/glass_search_bar.dart';
@@ -25,6 +24,8 @@ import 'graph_screen.dart';
 import 'settings_screen.dart';
 
 enum _SortMode { recent, oldest, title }
+
+enum _HeaderAction { import, export }
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -80,22 +81,23 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         floatingActionButton: _currentIndex == 0
             ? Padding(
-                padding: const EdgeInsets.only(bottom: 88),
+                padding: const EdgeInsets.only(bottom: 80),
                 child: GlassButton(
                   onPressed: _showCreateNoteSheet,
+                  borderRadius: BorderRadius.circular(22),
                   padding:
-                      const EdgeInsets.symmetric(horizontal: 26, vertical: 15),
+                      const EdgeInsets.symmetric(horizontal: 18, vertical: 11),
                   child: const Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.add_rounded, size: 20, color: Colors.white),
-                      SizedBox(width: 8),
+                      Icon(Icons.add_rounded, size: 18, color: Colors.white),
+                      SizedBox(width: 6),
                       Text(
                         'New Note',
                         style: TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.w700,
-                          fontSize: 15,
+                          fontSize: 13,
                         ),
                       ),
                     ],
@@ -590,22 +592,47 @@ class _NotesHeader extends StatelessWidget {
                   ],
                 ),
               ),
-              GlassActionButton(
-                icon: Icons.upload_file_rounded,
-                tooltip: 'Import',
-                color: colorScheme.primary,
-                onPressed: onImport,
-              ),
-              const SizedBox(width: 8),
-              GlassActionButton(
-                icon: Icons.folder_zip_rounded,
-                tooltip: 'Export all',
-                color: colorScheme.tertiary,
-                onPressed: onExport,
+              PopupMenuButton<_HeaderAction>(
+                tooltip: 'More',
+                offset: const Offset(0, 52),
+                color: colorScheme.surface,
+                onSelected: (action) {
+                  switch (action) {
+                    case _HeaderAction.import:
+                      onImport();
+                    case _HeaderAction.export:
+                      onExport();
+                  }
+                },
+                itemBuilder: (context) => const [
+                  PopupMenuItem(
+                    value: _HeaderAction.import,
+                    child: Row(
+                      children: [
+                        Icon(Icons.upload_file_rounded, size: 20),
+                        SizedBox(width: 12),
+                        Text('Import notes'),
+                      ],
+                    ),
+                  ),
+                  PopupMenuItem(
+                    value: _HeaderAction.export,
+                    child: Row(
+                      children: [
+                        Icon(Icons.folder_zip_rounded, size: 20),
+                        SizedBox(width: 12),
+                        Text('Export all'),
+                      ],
+                    ),
+                  ),
+                ],
+                child: _GlassMenuButton(
+                  color: colorScheme.primary,
+                ),
               ),
             ],
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 16),
           Row(
             children: [
               Expanded(
@@ -648,6 +675,42 @@ class _NotesHeader extends StatelessWidget {
     if (value >= 1000000) return '${(value / 1000000).toStringAsFixed(1)}M';
     if (value >= 1000) return '${(value / 1000).toStringAsFixed(1)}k';
     return '$value';
+  }
+}
+
+class _GlassMenuButton extends StatelessWidget {
+  final Color color;
+
+  const _GlassMenuButton({required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(14),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+        child: Container(
+          width: 42,
+          height: 42,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(14),
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                color.withOpacity(0.16),
+                color.withOpacity(0.07),
+              ],
+            ),
+            border: Border.all(color: color.withOpacity(0.22)),
+            color: isDark ? Colors.black.withOpacity(0.1) : null,
+          ),
+          child: Icon(Icons.more_horiz_rounded, size: 22, color: color),
+        ),
+      ),
+    );
   }
 }
 

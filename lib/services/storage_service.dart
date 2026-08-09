@@ -6,6 +6,7 @@ import '../models/note.dart';
 import '../models/chat_message.dart';
 import '../services/search_service.dart';
 import 'link_service.dart';
+import 'formatter_service.dart';
 
 class StorageService extends ChangeNotifier {
   static const String _notesDir = 'notes';
@@ -152,7 +153,15 @@ class StorageService extends ChangeNotifier {
     if (content.isEmpty) return [];
 
     try {
-      final json = jsonDecode(content) as Map<String, dynamic>;
+      final decoded = jsonDecode(content);
+      if (decoded is! Map) return [];
+      final json = Map<String, dynamic>.from(decoded);
+
+      if (FormatterService.isGeminiFormat(json)) {
+        final chatJson = FormatterService.convertGeminiToChat(json);
+        return FormatterService.parseChatJson(chatJson);
+      }
+
       return ChatMessage.fromJsonMap(json);
     } catch (e) {
       return [];
