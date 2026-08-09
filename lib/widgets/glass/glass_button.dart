@@ -149,7 +149,8 @@ class _GlassButtonState extends State<GlassButton>
                           ),
                         ),
                       ),
-                      Center(
+                      DefaultTextStyle.merge(
+                        style: const TextStyle(color: Colors.white),
                         child: widget.isLoading
                             ? SizedBox(
                                 width: 20,
@@ -159,10 +160,7 @@ class _GlassButtonState extends State<GlassButton>
                                   color: Colors.white,
                                 ),
                               )
-                            : DefaultTextStyle.merge(
-                                style: const TextStyle(color: Colors.white),
-                                child: widget.child,
-                              ),
+                            : widget.child,
                       ),
                     ],
                   ),
