@@ -11,6 +11,7 @@ import '../models/chat_message.dart';
 import '../services/formatter_service.dart';
 import '../services/settings_service.dart';
 import '../services/storage_service.dart';
+import '../widgets/chat_markdown.dart';
 import '../widgets/empty_state.dart';
 import '../widgets/glass/glass_action_button.dart';
 import '../widgets/glass/glass_app_bar.dart';
@@ -188,7 +189,6 @@ class _ChatViewerScreenState extends State<ChatViewerScreen> {
 
   Widget _buildMessageGroup(
       ChatMessage message, SettingsService settings, int index) {
-    final colorScheme = Theme.of(context).colorScheme;
     final compact = settings.chatBubbleStyle == 'compact';
     final spacious = settings.chatBubbleStyle == 'spacious';
     final bottomPad = spacious ? 26.0 : compact ? 10.0 : 16.0;
@@ -199,10 +199,8 @@ class _ChatViewerScreenState extends State<ChatViewerScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _MessageBubble(
-            avatarIcon: Icons.person_rounded,
-            avatarGradient: [colorScheme.primary, colorScheme.primary.withOpacity(0.8)],
             title: 'You',
-            titleColor: colorScheme.primary,
+            titleColor: Theme.of(context).colorScheme.primary,
             message: message.userMessage,
             showTimestamp: settings.showTimestamps,
             timestamp: message.timestamp,
@@ -213,18 +211,21 @@ class _ChatViewerScreenState extends State<ChatViewerScreen> {
           ),
           if (settings.showThoughts && message.thoughts.isNotEmpty)
             Padding(
-              padding: const EdgeInsets.only(left: 30, right: 30, top: 8),
-              child: ThoughtBubble(thoughts: message.thoughts),
+              padding: const EdgeInsets.only(top: 8, right: 12),
+              child: Align(
+                alignment: Alignment.centerRight,
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxWidth: MediaQuery.of(context).size.width * 0.88,
+                  ),
+                  child: ThoughtBubble(thoughts: message.thoughts),
+                ),
+              ),
             ),
           if (message.modelResponse.isNotEmpty)
             Padding(
               padding: const EdgeInsets.only(top: 8),
               child: _MessageBubble(
-                avatarIcon: Icons.auto_awesome_rounded,
-                avatarGradient: [
-                  const Color(0xFF10B981),
-                  const Color(0xFF14B8A6),
-                ],
                 title: 'Model',
                 titleColor: const Color(0xFF10B981),
                 message: message.modelResponse,
@@ -481,8 +482,6 @@ class _ChatViewerScreenState extends State<ChatViewerScreen> {
 // ---- Message bubble ---------------------------------------------------------
 
 class _MessageBubble extends StatelessWidget {
-  final IconData avatarIcon;
-  final List<Color> avatarGradient;
   final String title;
   final Color titleColor;
   final String message;
@@ -494,8 +493,6 @@ class _MessageBubble extends StatelessWidget {
   final VoidCallback? onCopy;
 
   const _MessageBubble({
-    required this.avatarIcon,
-    required this.avatarGradient,
     required this.title,
     required this.titleColor,
     required this.message,
@@ -512,128 +509,86 @@ class _MessageBubble extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final colorScheme = Theme.of(context).colorScheme;
 
-    final bubble = Container(
-      constraints: BoxConstraints(
-        maxWidth: MediaQuery.of(context).size.width * 0.78,
-      ),
-      padding: EdgeInsets.all(compact ? 14 : 16),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.only(
-          topLeft: const Radius.circular(20),
-          topRight: const Radius.circular(20),
-          bottomLeft: Radius.circular(fromRight ? 20 : 6),
-          bottomRight: Radius.circular(fromRight ? 6 : 20),
+    return Align(
+      alignment: fromRight ? Alignment.centerRight : Alignment.centerLeft,
+      child: Container(
+        constraints: BoxConstraints(
+          maxWidth: MediaQuery.of(context).size.width * 0.92,
         ),
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: fromRight
-              ? [
-                  const Color(0xFF10B981).withOpacity(0.16),
-                  const Color(0xFF14B8A6).withOpacity(0.08),
-                ]
-              : [
-                  colorScheme.primary.withOpacity(0.18),
-                  colorScheme.primary.withOpacity(0.08),
-                ],
-        ),
-        border: Border.all(
-          color: fromRight
-              ? const Color(0xFF10B981).withOpacity(0.25)
-              : colorScheme.primary.withOpacity(0.22),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(isDark ? 0.22 : 0.05),
-            blurRadius: 16,
-            offset: const Offset(0, 6),
+        padding: EdgeInsets.all(compact ? 14 : 16),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.only(
+            topLeft: const Radius.circular(20),
+            topRight: const Radius.circular(20),
+            bottomLeft: Radius.circular(fromRight ? 20 : 6),
+            bottomRight: Radius.circular(fromRight ? 6 : 20),
           ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Text(
-                title,
-                style: TextStyle(
-                  fontWeight: FontWeight.w800,
-                  fontSize: compact ? 11 : 12.5,
-                  color: titleColor,
-                  letterSpacing: 0.3,
-                ),
-              ),
-              const SizedBox(width: 8),
-              if (showTimestamp)
-                Text(
-                  DateFormat('h:mm a').format(timestamp),
-                  style: TextStyle(
-                    fontSize: 10,
-                    color: colorScheme.onSurface.withOpacity(0.35),
-                  ),
-                ),
-              const Spacer(),
-              if (onCopy != null)
-                GestureDetector(
-                  onTap: onCopy,
-                  child: Icon(
-                    Icons.copy_rounded,
-                    size: 14,
-                    color: colorScheme.onSurface.withOpacity(0.35),
-                  ),
-                ),
-            ],
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: fromRight
+                ? [
+                    const Color(0xFF10B981).withOpacity(0.16),
+                    const Color(0xFF14B8A6).withOpacity(0.08),
+                  ]
+                : [
+                    colorScheme.primary.withOpacity(0.18),
+                    colorScheme.primary.withOpacity(0.08),
+                  ],
           ),
-          const SizedBox(height: 10),
-          Text(
-            message,
-            style: TextStyle(
-              fontSize: fontSize,
-              height: 1.65,
-              color: colorScheme.onSurface,
+          border: Border.all(
+            color: fromRight
+                ? const Color(0xFF10B981).withOpacity(0.25)
+                : colorScheme.primary.withOpacity(0.22),
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(isDark ? 0.22 : 0.05),
+              blurRadius: 16,
+              offset: const Offset(0, 6),
             ),
-          ),
-        ],
-      ),
-    );
-
-    final avatar = Container(
-      width: 30,
-      height: 30,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: avatarGradient,
+          ],
         ),
-        boxShadow: [
-          BoxShadow(
-            color: avatarGradient.first.withOpacity(0.35),
-            blurRadius: 10,
-            offset: const Offset(0, 3),
-          ),
-        ],
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontWeight: FontWeight.w800,
+                    fontSize: compact ? 11 : 12.5,
+                    color: titleColor,
+                    letterSpacing: 0.3,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                if (showTimestamp)
+                  Text(
+                    DateFormat('h:mm a').format(timestamp),
+                    style: TextStyle(
+                      fontSize: 10,
+                      color: colorScheme.onSurface.withOpacity(0.35),
+                    ),
+                  ),
+                const Spacer(),
+                if (onCopy != null)
+                  GestureDetector(
+                    onTap: onCopy,
+                    child: Icon(
+                      Icons.copy_rounded,
+                      size: 14,
+                      color: colorScheme.onSurface.withOpacity(0.35),
+                    ),
+                  ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            ChatMarkdownBody(data: message, fontSize: fontSize),
+          ],
+        ),
       ),
-      child: Icon(avatarIcon, size: 15, color: Colors.white),
-    );
-
-    return Row(
-      mainAxisAlignment:
-          fromRight ? MainAxisAlignment.end : MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        if (!fromRight) ...[
-          avatar,
-          const SizedBox(width: 10),
-        ],
-        Flexible(child: bubble),
-        if (fromRight) ...[
-          const SizedBox(width: 10),
-          avatar,
-        ],
-      ],
     );
   }
 }
