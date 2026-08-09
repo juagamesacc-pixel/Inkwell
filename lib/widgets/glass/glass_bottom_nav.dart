@@ -38,26 +38,26 @@ class _GlassBottomNavState extends State<GlassBottomNav> {
                 end: Alignment.bottomRight,
                 colors: isDark
                     ? [
-                        const Color(0xFF161C2B).withOpacity(0.82),
-                        const Color(0xFF0C101C).withOpacity(0.9),
+                        const Color(0xFF161C2B).withValues(alpha: 0.82),
+                        const Color(0xFF0C101C).withValues(alpha: 0.9),
                       ]
                     : [
-                        Colors.white.withOpacity(0.82),
-                        const Color(0xFFF2F5FF).withOpacity(0.92),
+                        Colors.white.withValues(alpha: 0.82),
+                        const Color(0xFFF2F5FF).withValues(alpha: 0.92),
                       ],
               ),
               border: Border.all(
-                color: Colors.white.withOpacity(isDark ? 0.09 : 0.28),
+                color: Colors.white.withValues(alpha: isDark ? 0.09 : 0.28),
                 width: 1,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(isDark ? 0.45 : 0.14),
+                  color: Colors.black.withValues(alpha: isDark ? 0.45 : 0.14),
                   blurRadius: 30,
                   offset: const Offset(0, 12),
                 ),
                 BoxShadow(
-                  color: colorScheme.primary.withOpacity(0.08),
+                  color: colorScheme.primary.withValues(alpha: 0.08),
                   blurRadius: 50,
                 ),
               ],
@@ -85,8 +85,8 @@ class _GlassBottomNavState extends State<GlassBottomNav> {
                                     begin: Alignment.topLeft,
                                     end: Alignment.bottomRight,
                                     colors: [
-                                      colorScheme.primary.withOpacity(0.92),
-                                      colorScheme.primary.withOpacity(0.75),
+                                      colorScheme.primary.withValues(alpha: 0.92),
+                                      colorScheme.primary.withValues(alpha: 0.75),
                                     ],
                                   )
                                 : null,
@@ -94,7 +94,7 @@ class _GlassBottomNavState extends State<GlassBottomNav> {
                                 ? [
                                     BoxShadow(
                                       color: colorScheme.primary
-                                          .withOpacity(0.4),
+                                          .withValues(alpha: 0.4),
                                       blurRadius: 16,
                                       offset: const Offset(0, 6),
                                     ),
@@ -109,7 +109,7 @@ class _GlassBottomNavState extends State<GlassBottomNav> {
                                 size: 22,
                                 color: isSelected
                                     ? Colors.white
-                                    : colorScheme.onSurface.withOpacity(0.5),
+                                    : colorScheme.onSurface.withValues(alpha: 0.5),
                               ),
                               const SizedBox(height: 2),
                               Text(
@@ -120,7 +120,7 @@ class _GlassBottomNavState extends State<GlassBottomNav> {
                                   color: isSelected
                                       ? Colors.white
                                       : colorScheme.onSurface
-                                          .withOpacity(0.45),
+                                          .withValues(alpha: 0.45),
                                 ),
                               ),
                             ],

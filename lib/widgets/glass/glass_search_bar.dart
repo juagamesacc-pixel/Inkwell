@@ -59,25 +59,25 @@ class _GlassSearchBarState extends State<GlassSearchBar> {
               end: Alignment.bottomRight,
               colors: isDark
                   ? [
-                      Colors.white.withOpacity(_isFocused ? 0.13 : 0.07),
-                      Colors.white.withOpacity(_isFocused ? 0.07 : 0.035),
+                      Colors.white.withValues(alpha: _isFocused ? 0.13 : 0.07),
+                      Colors.white.withValues(alpha: _isFocused ? 0.07 : 0.035),
                     ]
                   : [
-                      Colors.white.withOpacity(_isFocused ? 0.95 : 0.8),
-                      Colors.white.withOpacity(_isFocused ? 0.85 : 0.6),
+                      Colors.white.withValues(alpha: _isFocused ? 0.95 : 0.8),
+                      Colors.white.withValues(alpha: _isFocused ? 0.85 : 0.6),
                     ],
             ),
             border: Border.all(
               color: _isFocused
-                  ? accent.withOpacity(0.7)
-                  : Colors.white.withOpacity(isDark ? 0.1 : 0.35),
+                  ? accent.withValues(alpha: 0.7)
+                  : Colors.white.withValues(alpha: isDark ? 0.1 : 0.35),
               width: _isFocused ? 1.5 : 1,
             ),
             boxShadow: [
               BoxShadow(
                 color: _isFocused
-                    ? accent.withOpacity(0.22)
-                    : Colors.black.withOpacity(isDark ? 0.25 : 0.05),
+                    ? accent.withValues(alpha: 0.22)
+                    : Colors.black.withValues(alpha: isDark ? 0.25 : 0.05),
                 blurRadius: _isFocused ? 26 : 12,
                 offset: const Offset(0, 6),
               ),
@@ -93,7 +93,7 @@ class _GlassSearchBarState extends State<GlassSearchBar> {
                   borderRadius: BorderRadius.circular(12),
                   gradient: _isFocused
                       ? LinearGradient(
-                          colors: [accent.withOpacity(0.25), accent.withOpacity(0.1)],
+                          colors: [accent.withValues(alpha: 0.25), accent.withValues(alpha: 0.1)],
                         )
                       : null,
                 ),
@@ -101,7 +101,7 @@ class _GlassSearchBarState extends State<GlassSearchBar> {
                   Icons.search_rounded,
                   color: _isFocused
                       ? accent
-                      : Theme.of(context).colorScheme.onSurface.withOpacity(0.45),
+                      : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.45),
                   size: 22,
                 ),
               ),
@@ -122,7 +122,7 @@ class _GlassSearchBarState extends State<GlassSearchBar> {
                       color: Theme.of(context)
                           .colorScheme
                           .onSurface
-                          .withOpacity(0.35),
+                          .withValues(alpha: 0.35),
                       fontSize: 15,
                     ),
                     border: InputBorder.none,
@@ -140,7 +140,7 @@ class _GlassSearchBarState extends State<GlassSearchBar> {
                     color: Theme.of(context)
                         .colorScheme
                         .onSurface
-                        .withOpacity(0.4),
+                        .withValues(alpha: 0.4),
                   ),
                   onPressed: () {
                     widget.controller.clear();
@@ -155,7 +155,7 @@ class _GlassSearchBarState extends State<GlassSearchBar> {
                     height: 8,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: accent.withOpacity(0.5),
+                      color: accent.withValues(alpha: 0.5),
                     ),
                   ),
                 ),

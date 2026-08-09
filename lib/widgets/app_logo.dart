@@ -28,20 +28,20 @@ class AppLogo extends StatelessWidget {
               end: Alignment.bottomRight,
               colors: isDark
                   ? [
-                      const Color(0xFF1B2233).withOpacity(0.7),
-                      const Color(0xFF10141F).withOpacity(0.5),
+                      const Color(0xFF1B2233).withValues(alpha: 0.7),
+                      const Color(0xFF10141F).withValues(alpha: 0.5),
                     ]
                   : [
-                      Colors.white.withOpacity(0.85),
-                      Colors.white.withOpacity(0.55),
+                      Colors.white.withValues(alpha: 0.85),
+                      Colors.white.withValues(alpha: 0.55),
                     ],
             ),
             border: Border.all(
-              color: Colors.white.withOpacity(isDark ? 0.1 : 0.3),
+              color: Colors.white.withValues(alpha: isDark ? 0.1 : 0.3),
             ),
             boxShadow: [
               BoxShadow(
-                color: Theme.of(context).colorScheme.primary.withOpacity(0.25),
+                color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.25),
                 blurRadius: 18,
                 offset: const Offset(0, 6),
               ),

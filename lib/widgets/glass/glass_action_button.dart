@@ -27,7 +27,6 @@ class _GlassActionButtonState extends State<GlassActionButton> {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     final accent = widget.color ?? Theme.of(context).colorScheme.primary;
 
     Widget button = GestureDetector(
@@ -58,16 +57,16 @@ class _GlassActionButtonState extends State<GlassActionButton> {
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                   colors: _pressed
-                      ? [accent.withOpacity(0.3), accent.withOpacity(0.18)]
-                      : [accent.withOpacity(0.16), accent.withOpacity(0.07)],
+                      ? [accent.withValues(alpha: 0.3), accent.withValues(alpha: 0.18)]
+                      : [accent.withValues(alpha: 0.16), accent.withValues(alpha: 0.07)],
                 ),
                 border: Border.all(
-                  color: accent.withOpacity(_pressed ? 0.4 : 0.22),
+                  color: accent.withValues(alpha: _pressed ? 0.4 : 0.22),
                 ),
                 boxShadow: _pressed
                     ? [
                         BoxShadow(
-                          color: accent.withOpacity(0.28),
+                          color: accent.withValues(alpha: 0.28),
                           blurRadius: 14,
                         ),
                       ]

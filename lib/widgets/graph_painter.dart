@@ -42,7 +42,7 @@ class GraphPainter extends CustomPainter {
 
         final base = isSelected ? colorScheme.primary : const Color(0xFF94A3B8);
         final paint = Paint()
-          ..color = base.withOpacity(isSelected ? 0.65 : 0.28 + pulse * 0.15)
+          ..color = base.withValues(alpha: isSelected ? 0.65 : 0.28 + pulse * 0.15)
           ..strokeWidth = isSelected ? 2.5 : 1.4
           ..style = PaintingStyle.stroke;
 
@@ -67,13 +67,13 @@ class GraphPainter extends CustomPainter {
         // Animated dash traveling along the edge.
         final dashPaint = Paint()
           ..color = (isSelected ? colorScheme.primary : const Color(0xFFCBD5E1))
-              .withOpacity(0.8)
+              .withValues(alpha: 0.8)
           ..strokeWidth = isSelected ? 3 : 2
           ..strokeCap = StrokeCap.round;
         final t = (animationValue + entry.key.hashCode % 10 / 10) % 1.0;
         _drawDash(canvas, sourcePos, mid, targetPos, t, dashPaint);
 
-        _drawArrow(canvas, targetPos, sourcePos, base.withOpacity(0.7));
+        _drawArrow(canvas, targetPos, sourcePos, base.withValues(alpha: 0.7));
       }
     }
   }
@@ -133,7 +133,7 @@ class GraphPainter extends CustomPainter {
       final glowPaint = Paint()
         ..shader = RadialGradient(
           colors: [
-            baseColor.withOpacity(isSelected ? 0.5 : 0.3),
+            baseColor.withValues(alpha: isSelected ? 0.5 : 0.3),
             Colors.transparent,
           ],
         ).createShader(Rect.fromCircle(center: position, radius: radius * 3));
@@ -155,7 +155,7 @@ class GraphPainter extends CustomPainter {
 
       // Ring border.
       final borderPaint = Paint()
-        ..color = Colors.white.withOpacity(isSelected ? 0.95 : 0.75)
+        ..color = Colors.white.withValues(alpha: isSelected ? 0.95 : 0.75)
         ..style = PaintingStyle.stroke
         ..strokeWidth = isSelected ? 2.5 : 1.6;
       canvas.drawCircle(position, radius, borderPaint);
@@ -163,7 +163,7 @@ class GraphPainter extends CustomPainter {
       // Selected halo ring.
       if (isSelected) {
         final ring = Paint()
-          ..color = baseColor.withOpacity(0.6 + sin(animationValue * 2 * pi) * 0.2)
+          ..color = baseColor.withValues(alpha: 0.6 + sin(animationValue * 2 * pi) * 0.2)
           ..style = PaintingStyle.stroke
           ..strokeWidth = 2;
         canvas.drawCircle(position, radius + 6 + sin(animationValue * 2 * pi) * 3, ring);

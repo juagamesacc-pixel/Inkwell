@@ -44,7 +44,7 @@ class SettingsScreen extends StatelessWidget {
                       color: Theme.of(context)
                           .colorScheme
                           .onSurface
-                          .withOpacity(0.45),
+                          .withValues(alpha: 0.45),
                     ),
                   ),
                 ],
@@ -140,9 +140,9 @@ class SettingsScreen extends StatelessWidget {
                     gradient: LinearGradient(
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
-                      colors: [color.withOpacity(0.22), color.withOpacity(0.1)],
+                      colors: [color.withValues(alpha: 0.22), color.withValues(alpha: 0.1)],
                     ),
-                    border: Border.all(color: color.withOpacity(0.25)),
+                    border: Border.all(color: color.withValues(alpha: 0.25)),
                   ),
                   child: Icon(icon, size: 18, color: color),
                 ),
@@ -230,7 +230,7 @@ class SettingsScreen extends StatelessWidget {
                   'Version 1.0.0 · Your second brain',
                   style: TextStyle(
                     fontSize: 12,
-                    color: colorScheme.onSurface.withOpacity(0.45),
+                    color: colorScheme.onSurface.withValues(alpha: 0.45),
                   ),
                 ),
               ],
@@ -267,23 +267,29 @@ class SettingsScreen extends StatelessWidget {
       final file = result.files.single;
       final bytes = file.bytes;
       if (bytes == null) return;
+      if (!context.mounted) return;
       final storage = context.read<StorageService>();
       final text = utf8.decode(bytes, allowMalformed: true);
       final name = file.name.toLowerCase();
 
       if (name.endsWith('.zip')) {
         final imported = await ZipHandler.importFromZip(bytes, storage);
+        if (!context.mounted) return;
         _toast(context, 'Imported ${imported.length} notes from zip');
       } else if (name.endsWith('.md')) {
         await storage.importMarkdown(file.name, text);
+        if (!context.mounted) return;
         _toast(context, 'Imported "${file.name}"');
       } else if (name.endsWith('.json')) {
         await storage.importChatJson(file.name, text);
+        if (!context.mounted) return;
         _toast(context, 'Imported "${file.name}"');
       } else {
+        if (!context.mounted) return;
         _toast(context, 'Unsupported file type', error: true);
       }
     } catch (e) {
+      if (!context.mounted) return;
       _toast(context, 'Import failed: $e', error: true);
     }
   }
@@ -301,6 +307,7 @@ class SettingsScreen extends StatelessWidget {
         text: 'Inkwell notes backup',
       );
     } catch (e) {
+      if (!context.mounted) return;
       _toast(context, 'Export failed: $e', error: true);
     }
   }
@@ -325,6 +332,7 @@ class SettingsScreen extends StatelessWidget {
     );
     if (confirmed == true && context.mounted) {
       await context.read<SettingsService>().reset();
+      if (!context.mounted) return;
       _toast(context, 'Settings restored to defaults');
     }
   }
@@ -377,7 +385,7 @@ class SettingsScreen extends StatelessWidget {
         spacing: 7,
         runSpacing: 7,
         children: AppColors.accentOptions.map((color) {
-          final isSelected = settings.accentColor.value == color.value;
+          final isSelected = settings.accentColor.toARGB32() == color.toARGB32();
           return GestureDetector(
             onTap: () => settings.setAccentColor(color),
             child: AnimatedContainer(
@@ -400,14 +408,14 @@ class SettingsScreen extends StatelessWidget {
                 boxShadow: isSelected
                     ? [
                         BoxShadow(
-                          color: color.withOpacity(0.5),
+                          color: color.withValues(alpha: 0.5),
                           blurRadius: 10,
                           offset: const Offset(0, 3),
                         ),
                       ]
                     : [
                         BoxShadow(
-                          color: color.withOpacity(0.25),
+                          color: color.withValues(alpha: 0.25),
                           blurRadius: 6,
                           offset: const Offset(0, 2),
                         ),
@@ -599,9 +607,9 @@ class _DataTile extends StatelessWidget {
                 gradient: LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
-                  colors: [color.withOpacity(0.22), color.withOpacity(0.1)],
+                  colors: [color.withValues(alpha: 0.22), color.withValues(alpha: 0.1)],
                 ),
-                border: Border.all(color: color.withOpacity(0.25)),
+                border: Border.all(color: color.withValues(alpha: 0.25)),
               ),
               child: Icon(icon, size: 18, color: color),
             ),
@@ -623,7 +631,7 @@ class _DataTile extends StatelessWidget {
                     subtitle,
                     style: TextStyle(
                       fontSize: 12,
-                      color: colorScheme.onSurface.withOpacity(0.45),
+                      color: colorScheme.onSurface.withValues(alpha: 0.45),
                     ),
                   ),
                 ],
@@ -632,7 +640,7 @@ class _DataTile extends StatelessWidget {
             Icon(
               Icons.arrow_forward_ios_rounded,
               size: 14,
-              color: colorScheme.onSurface.withOpacity(0.3),
+              color: colorScheme.onSurface.withValues(alpha: 0.3),
             ),
           ],
         ),
@@ -669,7 +677,7 @@ class _SettingsTile extends StatelessWidget {
           Icon(
             icon,
             size: 20,
-            color: colorScheme.onSurface.withOpacity(0.5),
+            color: colorScheme.onSurface.withValues(alpha: 0.5),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -689,7 +697,7 @@ class _SettingsTile extends StatelessWidget {
                     subtitle!,
                     style: TextStyle(
                       fontSize: 12,
-                      color: colorScheme.onSurface.withOpacity(0.45),
+                      color: colorScheme.onSurface.withValues(alpha: 0.45),
                     ),
                   ),
               ],
@@ -725,8 +733,8 @@ class _Dropdown extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 12),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
-        color: colorScheme.primary.withOpacity(0.08),
-        border: Border.all(color: colorScheme.primary.withOpacity(0.2)),
+        color: colorScheme.primary.withValues(alpha: 0.08),
+        border: Border.all(color: colorScheme.primary.withValues(alpha: 0.2)),
       ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<String>(

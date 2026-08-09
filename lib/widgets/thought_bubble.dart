@@ -32,12 +32,12 @@ class _ThoughtBubbleState extends State<ThoughtBubble> {
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                scheme.tertiary.withOpacity(0.1),
-                scheme.tertiary.withOpacity(0.05),
+                scheme.tertiary.withValues(alpha: 0.1),
+                scheme.tertiary.withValues(alpha: 0.05),
               ],
             ),
             border: Border.all(
-              color: scheme.tertiary.withOpacity(0.15),
+              color: scheme.tertiary.withValues(alpha: 0.15),
               width: 1,
             ),
           ),
@@ -57,7 +57,7 @@ class _ThoughtBubbleState extends State<ThoughtBubble> {
                           padding: const EdgeInsets.all(4),
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(6),
-                            color: scheme.tertiary.withOpacity(0.15),
+                            color: scheme.tertiary.withValues(alpha: 0.15),
                           ),
                           child: Icon(
                             Icons.lightbulb_rounded,
@@ -82,7 +82,7 @@ class _ThoughtBubbleState extends State<ThoughtBubble> {
                           child: Icon(
                             Icons.expand_more_rounded,
                             size: 18,
-                            color: scheme.tertiary.withOpacity(0.7),
+                            color: scheme.tertiary.withValues(alpha: 0.7),
                           ),
                         ),
                       ],
@@ -99,7 +99,7 @@ class _ThoughtBubbleState extends State<ThoughtBubble> {
                   style: TextStyle(
                     fontSize: 13,
                     height: 1.5,
-                    color: scheme.onSurface.withOpacity(0.5),
+                    color: scheme.onSurface.withValues(alpha: 0.5),
                     fontStyle: FontStyle.italic,
                   ),
                   maxLines: _expanded ? null : 3,

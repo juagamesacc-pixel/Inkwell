@@ -51,7 +51,7 @@ class SettingsService extends ChangeNotifier {
   Future<void> _save() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt('themeMode', _themeMode.index);
-    await prefs.setInt('accentColor', _accentColor.value);
+    await prefs.setInt('accentColor', _accentColor.toARGB32());
     await prefs.setDouble('fontSize', _fontSize);
     await prefs.setBool('animationsEnabled', _animationsEnabled);
     await prefs.setString('graphLayout', _graphLayout);

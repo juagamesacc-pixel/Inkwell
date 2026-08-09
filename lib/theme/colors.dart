@@ -93,7 +93,7 @@ class AppColors {
   }
 
   /// A soft, translucent tint used behind gradient blobs.
-  static Color soft(Color accent) => accent.withOpacity(0.14);
+  static Color soft(Color accent) => accent.withValues(alpha: 0.14);
 
   static Color hexToColor(String hex) {
     var value = hex.replaceAll('#', '');

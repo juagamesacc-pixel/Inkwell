@@ -39,20 +39,20 @@ class StatsCard extends StatelessWidget {
                 end: Alignment.bottomRight,
                 colors: isDark
                     ? [
-                        Colors.white.withOpacity(0.08),
-                        Colors.white.withOpacity(0.03),
+                        Colors.white.withValues(alpha: 0.08),
+                        Colors.white.withValues(alpha: 0.03),
                       ]
                     : [
-                        Colors.white.withOpacity(0.9),
-                        Colors.white.withOpacity(0.6),
+                        Colors.white.withValues(alpha: 0.9),
+                        Colors.white.withValues(alpha: 0.6),
                       ],
               ),
               border: Border.all(
-                color: Colors.white.withOpacity(isDark ? 0.09 : 0.28),
+                color: Colors.white.withValues(alpha: isDark ? 0.09 : 0.28),
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(isDark ? 0.25 : 0.05),
+                  color: Colors.black.withValues(alpha: isDark ? 0.25 : 0.05),
                   blurRadius: 12,
                   offset: const Offset(0, 5),
                 ),
@@ -69,7 +69,7 @@ class StatsCard extends StatelessWidget {
                     gradient: gradient,
                     boxShadow: [
                       BoxShadow(
-                        color: tint.withOpacity(0.3),
+                        color: tint.withValues(alpha: 0.3),
                         blurRadius: 8,
                         offset: const Offset(0, 3),
                       ),
@@ -96,7 +96,7 @@ class StatsCard extends StatelessWidget {
                     color: Theme.of(context)
                         .colorScheme
                         .onSurface
-                        .withOpacity(0.5),
+                        .withValues(alpha: 0.5),
                   ),
                 ),
               ],

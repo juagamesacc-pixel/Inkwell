@@ -29,11 +29,11 @@ class _NoteCardState extends State<NoteCard> {
   (Color, Color, IconData) get _meta {
     switch (widget.note.type) {
       case NoteType.markdown:
-        return (AppColors.markdownAccent, AppColors.markdownAccent.withOpacity(0.7), Icons.edit_note_rounded);
+        return (AppColors.markdownAccent, AppColors.markdownAccent.withValues(alpha: 0.7), Icons.edit_note_rounded);
       case NoteType.chat:
-        return (AppColors.chatAccent, AppColors.chatAccent.withOpacity(0.7), Icons.chat_bubble_rounded);
+        return (AppColors.chatAccent, AppColors.chatAccent.withValues(alpha: 0.7), Icons.chat_bubble_rounded);
       case NoteType.googleDocs:
-        return (AppColors.importedAccent, AppColors.importedAccent.withOpacity(0.7), Icons.article_rounded);
+        return (AppColors.importedAccent, AppColors.importedAccent.withValues(alpha: 0.7), Icons.article_rounded);
     }
   }
 
@@ -68,25 +68,25 @@ class _NoteCardState extends State<NoteCard> {
                     end: Alignment.bottomRight,
                     colors: isDark
                         ? [
-                            Colors.white.withOpacity(_hovered ? 0.13 : 0.09),
-                            Colors.white.withOpacity(_hovered ? 0.08 : 0.045),
+                            Colors.white.withValues(alpha: _hovered ? 0.13 : 0.09),
+                            Colors.white.withValues(alpha: _hovered ? 0.08 : 0.045),
                           ]
                         : [
-                            Colors.white.withOpacity(_hovered ? 0.98 : 0.88),
-                            Colors.white.withOpacity(_hovered ? 0.9 : 0.7),
+                            Colors.white.withValues(alpha: _hovered ? 0.98 : 0.88),
+                            Colors.white.withValues(alpha: _hovered ? 0.9 : 0.7),
                           ],
                   ),
                   border: Border.all(
                     color: _hovered
-                        ? accent.withOpacity(0.4)
-                        : Colors.white.withOpacity(isDark ? 0.1 : 0.3),
+                        ? accent.withValues(alpha: 0.4)
+                        : Colors.white.withValues(alpha: isDark ? 0.1 : 0.3),
                     width: 1,
                   ),
                   boxShadow: [
                     BoxShadow(
                       color: _hovered
-                          ? accent.withOpacity(isDark ? 0.2 : 0.14)
-                          : Colors.black.withOpacity(isDark ? 0.28 : 0.05),
+                          ? accent.withValues(alpha: isDark ? 0.2 : 0.14)
+                          : Colors.black.withValues(alpha: isDark ? 0.28 : 0.05),
                       blurRadius: _hovered ? 30 : 14,
                       offset: const Offset(0, 8),
                     ),
@@ -105,7 +105,7 @@ class _NoteCardState extends State<NoteCard> {
                           shape: BoxShape.circle,
                           gradient: RadialGradient(
                             colors: [
-                              accent.withOpacity(isDark ? 0.18 : 0.1),
+                              accent.withValues(alpha: isDark ? 0.18 : 0.1),
                               Colors.transparent,
                             ],
                           ),
@@ -125,12 +125,12 @@ class _NoteCardState extends State<NoteCard> {
                                   begin: Alignment.topLeft,
                                   end: Alignment.bottomRight,
                                   colors: [
-                                    accent.withOpacity(0.22),
-                                    accent.withOpacity(0.1),
+                                    accent.withValues(alpha: 0.22),
+                                    accent.withValues(alpha: 0.1),
                                   ],
                                 ),
                                 border: Border.all(
-                                  color: accent.withOpacity(0.25),
+                                  color: accent.withValues(alpha: 0.25),
                                 ),
                               ),
                               child: Icon(typeIcon, size: 18, color: accent),
@@ -158,7 +158,7 @@ class _NoteCardState extends State<NoteCard> {
                                       fontSize: 11.5,
                                       fontWeight: FontWeight.w500,
                                       color: colorScheme.onSurface
-                                          .withOpacity(0.4),
+                                          .withValues(alpha: 0.4),
                                     ),
                                   ),
                                 ],
@@ -175,7 +175,7 @@ class _NoteCardState extends State<NoteCard> {
                                 icon: Icon(
                                   Icons.push_pin_outlined,
                                   size: 18,
-                                  color: colorScheme.onSurface.withOpacity(0.3),
+                                  color: colorScheme.onSurface.withValues(alpha: 0.3),
                                 ),
                                 visualDensity: VisualDensity.compact,
                                 onPressed: widget.onTogglePin,
@@ -188,7 +188,7 @@ class _NoteCardState extends State<NoteCard> {
                                 icon: Icon(
                                   Icons.delete_outline_rounded,
                                   size: 18,
-                                  color: colorScheme.error.withOpacity(0.75),
+                                  color: colorScheme.error.withValues(alpha: 0.75),
                                 ),
                                 visualDensity: VisualDensity.compact,
                                 onPressed: widget.onDelete,
@@ -206,7 +206,7 @@ class _NoteCardState extends State<NoteCard> {
                             style: TextStyle(
                               fontSize: 13.5,
                               height: 1.55,
-                              color: colorScheme.onSurface.withOpacity(0.6),
+                              color: colorScheme.onSurface.withValues(alpha: 0.6),
                             ),
                           ),
                         ],
@@ -221,9 +221,9 @@ class _NoteCardState extends State<NoteCard> {
                                     horizontal: 9, vertical: 4),
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(8),
-                                  color: accent.withOpacity(0.1),
+                                  color: accent.withValues(alpha: 0.1),
                                   border: Border.all(
-                                    color: accent.withOpacity(0.18),
+                                    color: accent.withValues(alpha: 0.18),
                                   ),
                                 ),
                                 child: Text(
@@ -244,13 +244,13 @@ class _NoteCardState extends State<NoteCard> {
                             _FooterItem(
                               icon: Icons.notes_rounded,
                               text: '${note.wordCount} words',
-                              color: colorScheme.onSurface.withOpacity(0.4),
+                              color: colorScheme.onSurface.withValues(alpha: 0.4),
                             ),
                             const SizedBox(width: 14),
                             _FooterItem(
                               icon: Icons.schedule_rounded,
                               text: '${note.readingTime} min read',
-                              color: colorScheme.onSurface.withOpacity(0.4),
+                              color: colorScheme.onSurface.withValues(alpha: 0.4),
                             ),
                             const Spacer(),
                             Container(
@@ -258,7 +258,7 @@ class _NoteCardState extends State<NoteCard> {
                                   horizontal: 8, vertical: 3),
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(7),
-                                color: accentSoft.withOpacity(0.12),
+                                color: accentSoft.withValues(alpha: 0.12),
                               ),
                               child: Text(
                                 widget.note.type.label,

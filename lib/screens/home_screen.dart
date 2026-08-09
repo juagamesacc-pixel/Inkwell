@@ -150,7 +150,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     color: Theme.of(context)
                         .colorScheme
                         .onSurface
-                        .withOpacity(0.45),
+                        .withValues(alpha: 0.45),
                   ),
                 ),
                 const SizedBox(height: 20),
@@ -260,24 +260,29 @@ class _HomeScreenState extends State<HomeScreen> {
         _toast('Could not read file', error: true);
         return;
       }
+      if (!mounted) return;
 
       final storage = context.read<StorageService>();
       final text = utf8.decode(bytes, allowMalformed: true);
 
       if (name.toLowerCase().endsWith('.zip')) {
         final imported = await ZipHandler.importFromZip(bytes, storage);
+        if (!mounted) return;
         _toast('Imported ${imported.length} notes from zip');
       } else if (name.toLowerCase().endsWith('.md')) {
         await storage.importMarkdown(name, text);
+        if (!mounted) return;
         _toast('Imported "$name"');
       } else if (name.toLowerCase().endsWith('.json')) {
         final imported = await _importJson(name, text);
+        if (!mounted) return;
         _toast(imported == null ? 'Unrecognized JSON format' : 'Imported "$name"',
             error: imported == null);
       } else {
         _toast('Unsupported file type', error: true);
       }
     } catch (e) {
+      if (!mounted) return;
       _toast('Import failed: $e', error: true);
     } finally {
       if (mounted) setState(() => _importing = false);
@@ -586,7 +591,7 @@ class _NotesHeader extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 12.5,
                         fontWeight: FontWeight.w500,
-                        color: colorScheme.onSurface.withOpacity(0.45),
+                        color: colorScheme.onSurface.withValues(alpha: 0.45),
                       ),
                     ),
                   ],
@@ -700,12 +705,12 @@ class _GlassMenuButton extends StatelessWidget {
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                color.withOpacity(0.16),
-                color.withOpacity(0.07),
+                color.withValues(alpha: 0.16),
+                color.withValues(alpha: 0.07),
               ],
             ),
-            border: Border.all(color: color.withOpacity(0.22)),
-            color: isDark ? Colors.black.withOpacity(0.1) : null,
+            border: Border.all(color: color.withValues(alpha: 0.22)),
+            color: isDark ? Colors.black.withValues(alpha: 0.1) : null,
           ),
           child: Icon(Icons.more_horiz_rounded, size: 22, color: color),
         ),
@@ -768,20 +773,20 @@ class _FilterBar extends StatelessWidget {
                   gradient: selected
                       ? LinearGradient(
                           colors: [
-                            colorScheme.primary.withOpacity(0.92),
-                            colorScheme.primary.withOpacity(0.7),
+                            colorScheme.primary.withValues(alpha: 0.92),
+                            colorScheme.primary.withValues(alpha: 0.7),
                           ],
                         )
                       : null,
                   color: selected
                       ? null
                       : (isDark
-                          ? Colors.white.withOpacity(0.06)
-                          : Colors.white.withOpacity(0.6)),
+                          ? Colors.white.withValues(alpha: 0.06)
+                          : Colors.white.withValues(alpha: 0.6)),
                   border: Border.all(
                     color: selected
                         ? Colors.transparent
-                        : colorScheme.outline.withOpacity(0.6),
+                        : colorScheme.outline.withValues(alpha: 0.6),
                   ),
                 ),
                 child: Text(
@@ -791,7 +796,7 @@ class _FilterBar extends StatelessWidget {
                     fontWeight: FontWeight.w600,
                     color: selected
                         ? Colors.white
-                        : colorScheme.onSurface.withOpacity(0.65),
+                        : colorScheme.onSurface.withValues(alpha: 0.65),
                   ),
                 ),
               ),
@@ -850,9 +855,9 @@ class _SortChip extends StatelessWidget {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(13),
           color: isDark
-              ? Colors.white.withOpacity(0.06)
-              : Colors.white.withOpacity(0.6),
-          border: Border.all(color: colorScheme.outline.withOpacity(0.6)),
+              ? Colors.white.withValues(alpha: 0.06)
+              : Colors.white.withValues(alpha: 0.6),
+          border: Border.all(color: colorScheme.outline.withValues(alpha: 0.6)),
         ),
         child: Row(
           children: [
@@ -922,17 +927,17 @@ class _GlassSheet extends StatelessWidget {
                 end: Alignment.bottomRight,
                 colors: isDark
                     ? [
-                        const Color(0xFF141A2A).withOpacity(0.96),
-                        const Color(0xFF0C101C).withOpacity(0.98),
+                        const Color(0xFF141A2A).withValues(alpha: 0.96),
+                        const Color(0xFF0C101C).withValues(alpha: 0.98),
                       ]
                     : [
-                        Colors.white.withOpacity(0.97),
-                        const Color(0xFFF2F5FF).withOpacity(0.98),
+                        Colors.white.withValues(alpha: 0.97),
+                        const Color(0xFFF2F5FF).withValues(alpha: 0.98),
                       ],
               ),
               border: Border(
                 top: BorderSide(
-                  color: Colors.white.withOpacity(isDark ? 0.1 : 0.3),
+                  color: Colors.white.withValues(alpha: isDark ? 0.1 : 0.3),
                 ),
               ),
             ),
@@ -958,7 +963,7 @@ class _SheetHandle extends StatelessWidget {
         width: 44,
         height: 5,
         decoration: BoxDecoration(
-          color: colorScheme.onSurface.withOpacity(0.15),
+          color: colorScheme.onSurface.withValues(alpha: 0.15),
           borderRadius: BorderRadius.circular(3),
         ),
       ),
@@ -995,16 +1000,16 @@ class _TypeChip extends StatelessWidget {
               ? LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
-                  colors: [color.withOpacity(0.25), color.withOpacity(0.12)],
+                  colors: [color.withValues(alpha: 0.25), color.withValues(alpha: 0.12)],
                 )
               : null,
           color: selected
               ? null
-              : Theme.of(context).colorScheme.surface.withOpacity(0.3),
+              : Theme.of(context).colorScheme.surface.withValues(alpha: 0.3),
           border: Border.all(
             color: selected
-                ? color.withOpacity(0.5)
-                : Theme.of(context).colorScheme.outline.withOpacity(0.5),
+                ? color.withValues(alpha: 0.5)
+                : Theme.of(context).colorScheme.outline.withValues(alpha: 0.5),
             width: selected ? 1.5 : 1,
           ),
         ),
@@ -1013,7 +1018,7 @@ class _TypeChip extends StatelessWidget {
             Icon(
               icon,
               size: 22,
-              color: selected ? color : Colors.grey.withOpacity(0.6),
+              color: selected ? color : Colors.grey.withValues(alpha: 0.6),
             ),
             const SizedBox(height: 6),
             Text(

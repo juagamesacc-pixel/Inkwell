@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:archive/archive.dart';
 import '../models/note.dart';
-import '../models/chat_message.dart';
 import '../services/storage_service.dart';
 
 class ZipHandler {

@@ -279,7 +279,7 @@ class _ChatViewerScreenState extends State<ChatViewerScreen> {
           child: Container(
             padding: const EdgeInsets.fromLTRB(24, 14, 24, 28),
             decoration: BoxDecoration(
-              color: colorScheme.surface.withOpacity(0.94),
+              color: colorScheme.surface.withValues(alpha: 0.94),
               borderRadius:
                   const BorderRadius.vertical(top: Radius.circular(32)),
             ),
@@ -292,7 +292,7 @@ class _ChatViewerScreenState extends State<ChatViewerScreen> {
                     width: 44,
                     height: 5,
                     decoration: BoxDecoration(
-                      color: colorScheme.onSurface.withOpacity(0.15),
+                      color: colorScheme.onSurface.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(3),
                     ),
                   ),
@@ -312,7 +312,7 @@ class _ChatViewerScreenState extends State<ChatViewerScreen> {
                   'Choose a Gemini export file, or paste its JSON below.',
                   style: TextStyle(
                     fontSize: 13,
-                    color: colorScheme.onSurface.withOpacity(0.45),
+                    color: colorScheme.onSurface.withValues(alpha: 0.45),
                   ),
                 ),
                 const SizedBox(height: 20),
@@ -336,7 +336,7 @@ class _ChatViewerScreenState extends State<ChatViewerScreen> {
                     Expanded(
                       child: Container(
                         height: 1,
-                        color: colorScheme.outline.withOpacity(0.4),
+                        color: colorScheme.outline.withValues(alpha: 0.4),
                       ),
                     ),
                     Padding(
@@ -347,14 +347,14 @@ class _ChatViewerScreenState extends State<ChatViewerScreen> {
                           fontSize: 10,
                           fontWeight: FontWeight.w800,
                           letterSpacing: 1.2,
-                          color: colorScheme.onSurface.withOpacity(0.35),
+                          color: colorScheme.onSurface.withValues(alpha: 0.35),
                         ),
                       ),
                     ),
                     Expanded(
                       child: Container(
                         height: 1,
-                        color: colorScheme.outline.withOpacity(0.4),
+                        color: colorScheme.outline.withValues(alpha: 0.4),
                       ),
                     ),
                   ],
@@ -364,8 +364,8 @@ class _ChatViewerScreenState extends State<ChatViewerScreen> {
                   height: 220,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(14),
-                    color: colorScheme.surface.withOpacity(0.6),
-                    border: Border.all(color: colorScheme.outline.withOpacity(0.5)),
+                    color: colorScheme.surface.withValues(alpha: 0.6),
+                    border: Border.all(color: colorScheme.outline.withValues(alpha: 0.5)),
                   ),
                   child: TextField(
                     controller: controller,
@@ -377,7 +377,7 @@ class _ChatViewerScreenState extends State<ChatViewerScreen> {
                     decoration: InputDecoration(
                       hintText: '{ "chunkedPrompt": { "chunks": [...] } }',
                       hintStyle: TextStyle(
-                        color: colorScheme.onSurface.withOpacity(0.3),
+                        color: colorScheme.onSurface.withValues(alpha: 0.3),
                       ),
                       border: InputBorder.none,
                       filled: false,
@@ -528,22 +528,22 @@ class _MessageBubble extends StatelessWidget {
             end: Alignment.bottomRight,
             colors: fromRight
                 ? [
-                    const Color(0xFF10B981).withOpacity(0.16),
-                    const Color(0xFF14B8A6).withOpacity(0.08),
+                    const Color(0xFF10B981).withValues(alpha: 0.16),
+                    const Color(0xFF14B8A6).withValues(alpha: 0.08),
                   ]
                 : [
-                    colorScheme.primary.withOpacity(0.18),
-                    colorScheme.primary.withOpacity(0.08),
+                    colorScheme.primary.withValues(alpha: 0.18),
+                    colorScheme.primary.withValues(alpha: 0.08),
                   ],
           ),
           border: Border.all(
             color: fromRight
-                ? const Color(0xFF10B981).withOpacity(0.25)
-                : colorScheme.primary.withOpacity(0.22),
+                ? const Color(0xFF10B981).withValues(alpha: 0.25)
+                : colorScheme.primary.withValues(alpha: 0.22),
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(isDark ? 0.22 : 0.05),
+              color: Colors.black.withValues(alpha: isDark ? 0.22 : 0.05),
               blurRadius: 16,
               offset: const Offset(0, 6),
             ),
@@ -569,7 +569,7 @@ class _MessageBubble extends StatelessWidget {
                     DateFormat('h:mm a').format(timestamp),
                     style: TextStyle(
                       fontSize: 10,
-                      color: colorScheme.onSurface.withOpacity(0.35),
+                      color: colorScheme.onSurface.withValues(alpha: 0.35),
                     ),
                   ),
                 const Spacer(),
@@ -579,7 +579,7 @@ class _MessageBubble extends StatelessWidget {
                     child: Icon(
                       Icons.copy_rounded,
                       size: 14,
-                      color: colorScheme.onSurface.withOpacity(0.35),
+                      color: colorScheme.onSurface.withValues(alpha: 0.35),
                     ),
                   ),
               ],

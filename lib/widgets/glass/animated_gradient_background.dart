@@ -98,7 +98,7 @@ class _AnimatedGradientBackgroundState extends State<AnimatedGradientBackground>
                       borderRadius: BorderRadius.circular(240),
                       gradient: LinearGradient(
                         colors: [
-                          accent.withOpacity(isDark ? 0.12 : 0.16),
+                          accent.withValues(alpha: isDark ? 0.12 : 0.16),
                           Colors.transparent,
                         ],
                       ),
@@ -130,8 +130,8 @@ class _AnimatedGradientBackgroundState extends State<AnimatedGradientBackground>
             shape: BoxShape.circle,
             gradient: RadialGradient(
               colors: [
-                orb.color.withOpacity(isDark ? 0.24 : 0.20),
-                orb.color.withOpacity(isDark ? 0.06 : 0.05),
+                orb.color.withValues(alpha: isDark ? 0.24 : 0.20),
+                orb.color.withValues(alpha: isDark ? 0.06 : 0.05),
                 Colors.transparent,
               ],
             ),

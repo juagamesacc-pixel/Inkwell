@@ -109,21 +109,20 @@ class _GlassButtonState extends State<GlassButton>
                     borderRadius: radius,
                     gradient: gradient,
                     border: Border.all(
-                      color: Colors.white.withOpacity(
-                          enabled ? (isDark ? 0.18 : 0.35) : 0.1),
+                      color: Colors.white.withValues(alpha: enabled ? (isDark ? 0.18 : 0.35) : 0.1),
                       width: 1,
                     ),
                     boxShadow: [
                       BoxShadow(
                         color: accent
-                            .withOpacity(enabled ? 0.35 : 0.1)
-                            .withOpacity(_isPressed ? 0.18 : 0.35),
+                            .withValues(alpha: enabled ? 0.35 : 0.1)
+                            .withValues(alpha: _isPressed ? 0.18 : 0.35),
                         blurRadius: 18,
                         offset: const Offset(0, 6),
                       ),
                       if (enabled)
                         BoxShadow(
-                          color: gradient.colors.last.withOpacity(0.22),
+                          color: gradient.colors.last.withValues(alpha: 0.22),
                           blurRadius: 32,
                           offset: const Offset(0, 0),
                         ),
@@ -141,7 +140,7 @@ class _GlassButtonState extends State<GlassButton>
                                 begin: Alignment.topCenter,
                                 end: Alignment.bottomCenter,
                                 colors: [
-                                  Colors.white.withOpacity(0.22),
+                                  Colors.white.withValues(alpha: 0.22),
                                   Colors.transparent,
                                 ],
                               ),

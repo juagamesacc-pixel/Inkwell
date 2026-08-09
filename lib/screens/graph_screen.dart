@@ -291,7 +291,6 @@ class _GraphScreenState extends State<GraphScreen>
   }
 
   Widget _buildLegend(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
     return Positioned(
       left: 16,
       bottom: 96,
@@ -321,10 +320,10 @@ class _GraphScreenState extends State<GraphScreen>
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             gradient: LinearGradient(
-              colors: [color, color.withOpacity(0.6)],
+              colors: [color, color.withValues(alpha: 0.6)],
             ),
             boxShadow: [
-              BoxShadow(color: color.withOpacity(0.4), blurRadius: 6),
+              BoxShadow(color: color.withValues(alpha: 0.4), blurRadius: 6),
             ],
           ),
         ),
@@ -334,7 +333,7 @@ class _GraphScreenState extends State<GraphScreen>
           style: TextStyle(
             fontSize: 11,
             fontWeight: FontWeight.w600,
-            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
           ),
         ),
       ],
@@ -363,8 +362,8 @@ class _GraphScreenState extends State<GraphScreen>
                 borderRadius: BorderRadius.circular(14),
                 gradient: LinearGradient(
                   colors: [
-                    colorScheme.primary.withOpacity(0.25),
-                    colorScheme.primary.withOpacity(0.1),
+                    colorScheme.primary.withValues(alpha: 0.25),
+                    colorScheme.primary.withValues(alpha: 0.1),
                   ],
                 ),
               ),
@@ -397,7 +396,7 @@ class _GraphScreenState extends State<GraphScreen>
                     '${note.wordCount} words · ${note.type.label}',
                     style: TextStyle(
                       fontSize: 11.5,
-                      color: colorScheme.onSurface.withOpacity(0.45),
+                      color: colorScheme.onSurface.withValues(alpha: 0.45),
                     ),
                   ),
                 ],

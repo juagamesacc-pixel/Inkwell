@@ -47,13 +47,13 @@ class GlassCard extends StatelessWidget {
             [
               BoxShadow(
                 color: (isDark ? Colors.black : const Color(0xFF64748B))
-                    .withOpacity(isDark ? 0.35 : 0.14),
+                    .withValues(alpha: isDark ? 0.35 : 0.14),
                 blurRadius: 28,
                 spreadRadius: 0,
                 offset: const Offset(0, 10),
               ),
               BoxShadow(
-                color: accent.withOpacity(isDark ? 0.06 : 0.05),
+                color: accent.withValues(alpha: isDark ? 0.06 : 0.05),
                 blurRadius: 60,
                 offset: const Offset(0, 0),
               ),
@@ -73,18 +73,18 @@ class GlassCard extends StatelessWidget {
                         end: Alignment.bottomRight,
                         colors: isDark
                             ? [
-                                Colors.white.withOpacity(opacity),
-                                Colors.white.withOpacity(opacity * 0.45),
+                                Colors.white.withValues(alpha: opacity),
+                                Colors.white.withValues(alpha: opacity * 0.45),
                               ]
                             : [
-                                Colors.white.withOpacity(opacity * 1.8),
-                                Colors.white.withOpacity(opacity * 0.9),
+                                Colors.white.withValues(alpha: opacity * 1.8),
+                                Colors.white.withValues(alpha: opacity * 0.9),
                               ],
                       )),
               borderRadius: radius,
               border: border ??
                   Border.all(
-                    color: Colors.white.withOpacity(isDark ? 0.09 : 0.22),
+                    color: Colors.white.withValues(alpha: isDark ? 0.09 : 0.22),
                     width: 1,
                   ),
             ),
@@ -106,7 +106,7 @@ class GlassCard extends StatelessWidget {
                           begin: Alignment.topCenter,
                           end: Alignment.bottomCenter,
                           colors: [
-                            Colors.white.withOpacity(isDark ? 0.06 : 0.28),
+                            Colors.white.withValues(alpha: isDark ? 0.06 : 0.28),
                             Colors.transparent,
                           ],
                         ),

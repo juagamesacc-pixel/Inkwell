@@ -64,25 +64,25 @@ class ChatMarkdownBody extends StatelessWidget {
         fontFamily: 'JetBrainsMono',
         fontSize: f - 2,
         color: scheme.primary,
-        backgroundColor: scheme.primaryContainer.withOpacity(0.25),
+        backgroundColor: scheme.primaryContainer.withValues(alpha: 0.25),
       ),
       codeblockDecoration: const BoxDecoration(
         color: Color(0xFF0D1220),
       ),
       blockquote: TextStyle(
-        color: scheme.onSurface.withOpacity(0.75),
+        color: scheme.onSurface.withValues(alpha: 0.75),
         fontSize: f - 1,
         height: 1.6,
         fontStyle: FontStyle.italic,
       ),
       blockquoteDecoration: BoxDecoration(
-        color: scheme.primary.withOpacity(0.06),
+        color: scheme.primary.withValues(alpha: 0.06),
         border: Border(left: BorderSide(color: scheme.primary, width: 4)),
         borderRadius: BorderRadius.circular(8),
       ),
       listBullet: TextStyle(color: scheme.primary, fontSize: f),
       horizontalRuleDecoration: BoxDecoration(
-        border: Border(top: BorderSide(color: scheme.outline.withOpacity(0.5), width: 1)),
+        border: Border(top: BorderSide(color: scheme.outline.withValues(alpha: 0.5), width: 1)),
       ),
       a: TextStyle(
         color: scheme.primary,
@@ -92,7 +92,7 @@ class ChatMarkdownBody extends StatelessWidget {
       tableHead: TextStyle(fontWeight: FontWeight.bold, color: scheme.onSurface),
       tableBody: TextStyle(color: scheme.onSurface),
       tableBorder: TableBorder.all(
-        color: scheme.outline.withOpacity(0.6),
+        color: scheme.outline.withValues(alpha: 0.6),
         borderRadius: BorderRadius.circular(10),
       ),
       tableCellsPadding: const EdgeInsets.all(10),

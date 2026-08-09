@@ -108,7 +108,6 @@ class _EditorScreenState extends State<EditorScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     final settings = context.watch<SettingsService>();
     final words = _contentController.text.trim().isEmpty
         ? 0
@@ -167,7 +166,7 @@ class _EditorScreenState extends State<EditorScreen> {
                   color: Theme.of(context)
                       .colorScheme
                       .onSurface
-                      .withOpacity(0.3),
+                      .withValues(alpha: 0.3),
                   fontWeight: FontWeight.w600,
                 ),
                 filled: false,
@@ -187,7 +186,7 @@ class _EditorScreenState extends State<EditorScreen> {
                   color: Theme.of(context)
                       .colorScheme
                       .outline
-                      .withOpacity(0.4),
+                      .withValues(alpha: 0.4),
                 ),
                 Expanded(child: _buildPreviewPane(context)),
               ],
@@ -208,8 +207,8 @@ class _EditorScreenState extends State<EditorScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
-          color: colorScheme.surface.withOpacity(0.5),
-          border: Border.all(color: colorScheme.outline.withOpacity(0.5)),
+          color: colorScheme.surface.withValues(alpha: 0.5),
+          border: Border.all(color: colorScheme.outline.withValues(alpha: 0.5)),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -239,7 +238,7 @@ class _EditorScreenState extends State<EditorScreen> {
               style: TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.w600,
-                color: colorScheme.onSurface.withOpacity(0.6),
+                color: colorScheme.onSurface.withValues(alpha: 0.6),
               ),
             ),
             Text(
@@ -247,7 +246,7 @@ class _EditorScreenState extends State<EditorScreen> {
               style: TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.w500,
-                color: colorScheme.onSurface.withOpacity(0.4),
+                color: colorScheme.onSurface.withValues(alpha: 0.4),
               ),
             ),
           ],
@@ -289,7 +288,7 @@ class _EditorScreenState extends State<EditorScreen> {
                     color: Theme.of(context)
                         .colorScheme
                         .onSurface
-                        .withOpacity(0.25),
+                        .withValues(alpha: 0.25),
                     height: 1.75,
                   ),
                 ),
@@ -349,12 +348,12 @@ class _EditorScreenState extends State<EditorScreen> {
                       borderRadius: BorderRadius.circular(8),
                       gradient: LinearGradient(
                         colors: [
-                          colorScheme.primary.withOpacity(0.18),
-                          colorScheme.primary.withOpacity(0.08),
+                          colorScheme.primary.withValues(alpha: 0.18),
+                          colorScheme.primary.withValues(alpha: 0.08),
                         ],
                       ),
                       border: Border.all(
-                        color: colorScheme.primary.withOpacity(0.25),
+                        color: colorScheme.primary.withValues(alpha: 0.25),
                       ),
                     ),
                     child: Text(
@@ -387,20 +386,20 @@ class _EditorScreenState extends State<EditorScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(9),
-        color: colorScheme.surface.withOpacity(0.5),
-        border: Border.all(color: colorScheme.outline.withOpacity(0.5)),
+        color: colorScheme.surface.withValues(alpha: 0.5),
+        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.5)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 12, color: colorScheme.onSurface.withOpacity(0.45)),
+          Icon(icon, size: 12, color: colorScheme.onSurface.withValues(alpha: 0.45)),
           const SizedBox(width: 5),
           Text(
             label,
             style: TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w600,
-              color: colorScheme.onSurface.withOpacity(0.55),
+              color: colorScheme.onSurface.withValues(alpha: 0.55),
             ),
           ),
         ],
@@ -460,7 +459,7 @@ class _EditorScreenState extends State<EditorScreen> {
               child: Container(
                 padding: const EdgeInsets.fromLTRB(24, 14, 24, 28),
                 decoration: BoxDecoration(
-                  color: colorScheme.surface.withOpacity(0.92),
+                  color: colorScheme.surface.withValues(alpha: 0.92),
                   borderRadius:
                       const BorderRadius.vertical(top: Radius.circular(32)),
                 ),
@@ -473,7 +472,7 @@ class _EditorScreenState extends State<EditorScreen> {
                         width: 44,
                         height: 5,
                         decoration: BoxDecoration(
-                          color: colorScheme.onSurface.withOpacity(0.15),
+                          color: colorScheme.onSurface.withValues(alpha: 0.15),
                           borderRadius: BorderRadius.circular(3),
                         ),
                       ),
@@ -493,7 +492,7 @@ class _EditorScreenState extends State<EditorScreen> {
                       '${links.length} outgoing · ${backlinks.length} backlinks',
                       style: TextStyle(
                         fontSize: 13,
-                        color: colorScheme.onSurface.withOpacity(0.45),
+                        color: colorScheme.onSurface.withValues(alpha: 0.45),
                       ),
                     ),
                     const SizedBox(height: 18),
@@ -531,23 +530,23 @@ class _EditorScreenState extends State<EditorScreen> {
                                           colors: exists
                                               ? [
                                                   colorScheme.primary
-                                                      .withOpacity(0.2),
+                                                      .withValues(alpha: 0.2),
                                                   colorScheme.primary
-                                                      .withOpacity(0.1),
+                                                      .withValues(alpha: 0.1),
                                                 ]
                                               : [
                                                   colorScheme.outline
-                                                      .withOpacity(0.5),
+                                                      .withValues(alpha: 0.5),
                                                   colorScheme.outline
-                                                      .withOpacity(0.3),
+                                                      .withValues(alpha: 0.3),
                                                 ],
                                         ),
                                         border: Border.all(
                                           color: exists
                                               ? colorScheme.primary
-                                                  .withOpacity(0.3)
+                                                  .withValues(alpha: 0.3)
                                               : colorScheme.outline
-                                                  .withOpacity(0.6),
+                                                  .withValues(alpha: 0.6),
                                         ),
                                       ),
                                       child: Row(
@@ -561,7 +560,7 @@ class _EditorScreenState extends State<EditorScreen> {
                                             color: exists
                                                 ? colorScheme.primary
                                                 : colorScheme.onSurface
-                                                    .withOpacity(0.4),
+                                                    .withValues(alpha: 0.4),
                                           ),
                                           const SizedBox(width: 6),
                                           Text(
@@ -572,7 +571,7 @@ class _EditorScreenState extends State<EditorScreen> {
                                               color: exists
                                                   ? colorScheme.primary
                                                   : colorScheme.onSurface
-                                                      .withOpacity(0.5),
+                                                      .withValues(alpha: 0.5),
                                             ),
                                           ),
                                         ],
@@ -595,7 +594,7 @@ class _EditorScreenState extends State<EditorScreen> {
                                     decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(10),
                                       color: colorScheme.primary
-                                          .withOpacity(0.1),
+                                          .withValues(alpha: 0.1),
                                     ),
                                     child: const Icon(Icons.north_east_rounded,
                                         size: 16),
@@ -638,7 +637,7 @@ class _EditorScreenState extends State<EditorScreen> {
                                       fontSize: 13,
                                       height: 1.5,
                                       color: colorScheme.onSurface
-                                          .withOpacity(0.4),
+                                          .withValues(alpha: 0.4),
                                     ),
                                   ),
                                 ),
@@ -665,7 +664,7 @@ class _EditorScreenState extends State<EditorScreen> {
         fontSize: 11,
         fontWeight: FontWeight.w800,
         letterSpacing: 1.2,
-        color: colorScheme.onSurface.withOpacity(0.35),
+        color: colorScheme.onSurface.withValues(alpha: 0.35),
       ),
     );
   }
@@ -694,7 +693,7 @@ class _EditorScreenState extends State<EditorScreen> {
           child: Container(
             padding: const EdgeInsets.fromLTRB(24, 14, 24, 28),
             decoration: BoxDecoration(
-              color: colorScheme.surface.withOpacity(0.94),
+              color: colorScheme.surface.withValues(alpha: 0.94),
               borderRadius:
                   const BorderRadius.vertical(top: Radius.circular(32)),
             ),
@@ -707,7 +706,7 @@ class _EditorScreenState extends State<EditorScreen> {
                     width: 44,
                     height: 5,
                     decoration: BoxDecoration(
-                      color: colorScheme.onSurface.withOpacity(0.15),
+                      color: colorScheme.onSurface.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(3),
                     ),
                   ),
@@ -728,7 +727,7 @@ class _EditorScreenState extends State<EditorScreen> {
                   'It will be saved as a new chat note.',
                   style: TextStyle(
                     fontSize: 13,
-                    color: colorScheme.onSurface.withOpacity(0.45),
+                    color: colorScheme.onSurface.withValues(alpha: 0.45),
                   ),
                 ),
                 const SizedBox(height: 20),
@@ -752,7 +751,7 @@ class _EditorScreenState extends State<EditorScreen> {
                     Expanded(
                       child: Container(
                         height: 1,
-                        color: colorScheme.outline.withOpacity(0.4),
+                        color: colorScheme.outline.withValues(alpha: 0.4),
                       ),
                     ),
                     Padding(
@@ -763,14 +762,14 @@ class _EditorScreenState extends State<EditorScreen> {
                           fontSize: 10,
                           fontWeight: FontWeight.w800,
                           letterSpacing: 1.2,
-                          color: colorScheme.onSurface.withOpacity(0.35),
+                          color: colorScheme.onSurface.withValues(alpha: 0.35),
                         ),
                       ),
                     ),
                     Expanded(
                       child: Container(
                         height: 1,
-                        color: colorScheme.outline.withOpacity(0.4),
+                        color: colorScheme.outline.withValues(alpha: 0.4),
                       ),
                     ),
                   ],
@@ -780,9 +779,9 @@ class _EditorScreenState extends State<EditorScreen> {
                   height: 220,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(14),
-                    color: colorScheme.surface.withOpacity(0.6),
+                    color: colorScheme.surface.withValues(alpha: 0.6),
                     border: Border.all(
-                      color: colorScheme.outline.withOpacity(0.5),
+                      color: colorScheme.outline.withValues(alpha: 0.5),
                     ),
                   ),
                   child: TextField(
@@ -797,7 +796,7 @@ class _EditorScreenState extends State<EditorScreen> {
                     decoration: InputDecoration(
                       hintText: '{ "chunkedPrompt": { "chunks": [...] } }',
                       hintStyle: TextStyle(
-                        color: colorScheme.onSurface.withOpacity(0.3),
+                        color: colorScheme.onSurface.withValues(alpha: 0.3),
                       ),
                       border: InputBorder.none,
                       filled: false,
@@ -922,7 +921,6 @@ class _GlassEditorContainer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final colorScheme = Theme.of(context).colorScheme;
 
     return ClipRRect(
       borderRadius: BorderRadius.circular(22),
@@ -937,20 +935,20 @@ class _GlassEditorContainer extends StatelessWidget {
               end: Alignment.bottomRight,
               colors: isDark
                   ? [
-                      Colors.white.withOpacity(0.08),
-                      Colors.white.withOpacity(0.04),
+                      Colors.white.withValues(alpha: 0.08),
+                      Colors.white.withValues(alpha: 0.04),
                     ]
                   : [
-                      Colors.white.withOpacity(0.92),
-                      Colors.white.withOpacity(0.75),
+                      Colors.white.withValues(alpha: 0.92),
+                      Colors.white.withValues(alpha: 0.75),
                     ],
             ),
             border: Border.all(
-              color: Colors.white.withOpacity(isDark ? 0.1 : 0.3),
+              color: Colors.white.withValues(alpha: isDark ? 0.1 : 0.3),
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(isDark ? 0.3 : 0.06),
+                color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.06),
                 blurRadius: 24,
                 offset: const Offset(0, 10),
               ),
@@ -987,10 +985,10 @@ class _ModeSwitch extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(14),
         color: isDark
-            ? Colors.white.withOpacity(0.06)
-            : Colors.black.withOpacity(0.04),
+            ? Colors.white.withValues(alpha: 0.06)
+            : Colors.black.withValues(alpha: 0.04),
         border: Border.all(
-          color: Theme.of(context).colorScheme.outline.withOpacity(0.4),
+          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.4),
         ),
       ),
       child: Row(
@@ -1009,8 +1007,8 @@ class _ModeSwitch extends StatelessWidget {
                 gradient: selected
                     ? LinearGradient(
                         colors: [
-                          accent.withOpacity(0.85),
-                          accent.withOpacity(0.6),
+                          accent.withValues(alpha: 0.85),
+                          accent.withValues(alpha: 0.6),
                         ],
                       )
                     : null,
@@ -1025,7 +1023,7 @@ class _ModeSwitch extends StatelessWidget {
                       : Theme.of(context)
                           .colorScheme
                           .onSurface
-                          .withOpacity(0.5),
+                          .withValues(alpha: 0.5),
                 ),
               ),
             ),
@@ -1066,9 +1064,9 @@ class _MarkdownToolbar extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(14),
         color: isDark
-            ? Colors.white.withOpacity(0.06)
-            : Colors.black.withOpacity(0.03),
-        border: Border.all(color: colorScheme.outline.withOpacity(0.4)),
+            ? Colors.white.withValues(alpha: 0.06)
+            : Colors.black.withValues(alpha: 0.03),
+        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.4)),
       ),
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
@@ -1088,7 +1086,7 @@ class _MarkdownToolbar extends StatelessWidget {
                     child: Icon(
                       icon,
                       size: 17,
-                      color: colorScheme.onSurface.withOpacity(0.65),
+                      color: colorScheme.onSurface.withValues(alpha: 0.65),
                     ),
                   ),
                 ),

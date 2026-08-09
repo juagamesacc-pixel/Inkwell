@@ -16,6 +16,7 @@ dependencies:
   flutter_markdown: 0.6.23
   flutter_markdown_latex: 0.3.4
   flutter_math_fork: 0.7.4
+  markdown: 7.3.1
   re_highlight: 0.0.3
   archive: 3.6.1
   uuid: 4.6.0

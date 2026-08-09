@@ -47,7 +47,7 @@ class _ExpandableCodeBlockState extends State<ExpandableCodeBlock> {
       decoration: BoxDecoration(
         color: const Color(0xFF0D1220),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.white.withOpacity(0.08)),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -72,7 +72,7 @@ class _ExpandableCodeBlockState extends State<ExpandableCodeBlock> {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.04),
+            color: Colors.white.withValues(alpha: 0.04),
             borderRadius: const BorderRadius.vertical(top: Radius.circular(14)),
           ),
           child: Row(

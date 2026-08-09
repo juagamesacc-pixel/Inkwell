@@ -39,14 +39,14 @@ class GlassAppBar extends StatelessWidget implements PreferredSizeWidget {
               end: Alignment.bottomCenter,
               colors: [
                 (isDark ? const Color(0xFF0A0E1A) : Colors.white)
-                    .withOpacity(0.78),
+                    .withValues(alpha: 0.78),
                 (isDark ? const Color(0xFF0A0E1A) : Colors.white)
-                    .withOpacity(0.5),
+                    .withValues(alpha: 0.5),
               ],
             ),
             border: Border(
               bottom: BorderSide(
-                color: colorScheme.outline.withOpacity(0.5),
+                color: colorScheme.outline.withValues(alpha: 0.5),
                 width: 0.5,
               ),
             ),
@@ -86,7 +86,7 @@ class GlassAppBar extends StatelessWidget implements PreferredSizeWidget {
                                     fontSize: 12,
                                     fontWeight: FontWeight.w500,
                                     color: colorScheme.onSurface
-                                        .withOpacity(0.45),
+                                        .withValues(alpha: 0.45),
                                   ),
                                 ),
                             ],

@@ -59,7 +59,7 @@ class EmptyState extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 14,
                   height: 1.5,
-                  color: colorScheme.onSurface.withOpacity(0.45),
+                  color: colorScheme.onSurface.withValues(alpha: 0.45),
                 ),
               ).animate().fadeIn(delay: 300.ms).slideY(begin: 0.08, end: 0),
             ],

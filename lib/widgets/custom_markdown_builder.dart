@@ -34,7 +34,7 @@ class CustomMarkdownBuilder extends StatelessWidget {
       onTapLink: (text, href, title) {
         final target = href?.startsWith('#') == true
             ? Uri.decodeComponent(href!.substring(1))
-            : (text ?? href ?? '');
+            : text;
         onLinkTap?.call(target);
       },
     );
@@ -76,20 +76,20 @@ class CustomMarkdownBuilder extends StatelessWidget {
         fontFamily: 'JetBrainsMono',
         fontSize: 13.5,
         color: scheme.primary,
-        backgroundColor: scheme.primaryContainer.withOpacity(0.25),
+        backgroundColor: scheme.primaryContainer.withValues(alpha: 0.25),
       ),
       codeblockDecoration: BoxDecoration(
         color: isDark ? const Color(0xFF0D1220) : const Color(0xFF0F172A),
         borderRadius: BorderRadius.circular(14),
       ),
       blockquote: TextStyle(
-        color: scheme.onSurface.withOpacity(0.75),
+        color: scheme.onSurface.withValues(alpha: 0.75),
         fontSize: 15,
         height: 1.6,
         fontStyle: FontStyle.italic,
       ),
       blockquoteDecoration: BoxDecoration(
-        color: scheme.primary.withOpacity(0.06),
+        color: scheme.primary.withValues(alpha: 0.06),
         border: Border(
           left: BorderSide(color: scheme.primary, width: 4),
         ),
@@ -99,7 +99,7 @@ class CustomMarkdownBuilder extends StatelessWidget {
       horizontalRuleDecoration: BoxDecoration(
         border: Border(
           top: BorderSide(
-            color: scheme.outline.withOpacity(0.5),
+            color: scheme.outline.withValues(alpha: 0.5),
             width: 1,
           ),
         ),
@@ -115,7 +115,7 @@ class CustomMarkdownBuilder extends StatelessWidget {
       ),
       tableBody: TextStyle(color: scheme.onSurface),
       tableBorder: TableBorder.all(
-        color: scheme.outline.withOpacity(0.6),
+        color: scheme.outline.withValues(alpha: 0.6),
         borderRadius: BorderRadius.circular(10),
       ),
       tableCellsPadding: const EdgeInsets.all(10),
@@ -141,7 +141,7 @@ class _CodeBlockBuilder extends MarkdownElementBuilder {
         color: isDark ? const Color(0xFF0D1220) : const Color(0xFF0F172A),
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color: Colors.white.withOpacity(0.08),
+          color: Colors.white.withValues(alpha: 0.08),
         ),
       ),
       child: Column(
@@ -150,7 +150,7 @@ class _CodeBlockBuilder extends MarkdownElementBuilder {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.04),
+              color: Colors.white.withValues(alpha: 0.04),
               borderRadius: const BorderRadius.vertical(
                 top: Radius.circular(14),
               ),

@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'colors.dart';
@@ -78,7 +79,7 @@ class AppTheme {
 
     return base.copyWith(
       textTheme: _textTheme(base.textTheme, textColor, mutedText),
-      dividerTheme: DividerThemeData(color: borderColor.withOpacity(0.6)),
+      dividerTheme: DividerThemeData(color: borderColor.withValues(alpha: 0.6)),
       appBarTheme: AppBarTheme(
         elevation: 0,
         scrolledUnderElevation: 0,
@@ -91,7 +92,7 @@ class AppTheme {
           statusBarBrightness: isDark ? Brightness.dark : Brightness.light,
         ),
       ),
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         elevation: 0,
         color: surface,
         margin: EdgeInsets.zero,
@@ -105,7 +106,7 @@ class AppTheme {
           backgroundColor: accent,
           foregroundColor: Colors.white,
           elevation: 4,
-          shadowColor: accent.withOpacity(0.4),
+          shadowColor: accent.withValues(alpha: 0.4),
           textStyle: const TextStyle(
             fontWeight: FontWeight.w600,
             fontSize: 14.5,
@@ -125,7 +126,7 @@ class AppTheme {
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
           foregroundColor: accent,
-          side: BorderSide(color: accent.withOpacity(0.35)),
+          side: BorderSide(color: accent.withValues(alpha: 0.35)),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(radiusSm),
           ),
@@ -142,7 +143,7 @@ class AppTheme {
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: isDark ? AppColors.darkSurface : AppColors.lightSurfaceHigh,
-        hintStyle: TextStyle(color: mutedText.withOpacity(0.7)),
+        hintStyle: TextStyle(color: mutedText.withValues(alpha: 0.7)),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(radiusSm),
           borderSide: BorderSide(color: borderColor),
@@ -167,7 +168,7 @@ class AppTheme {
           borderRadius: BorderRadius.circular(radiusSm),
         ),
       ),
-      dialogTheme: DialogTheme(
+      dialogTheme: DialogThemeData(
         backgroundColor: isDark ? AppColors.darkSurface : surface,
         surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(
@@ -184,7 +185,7 @@ class AppTheme {
       navigationBarTheme: NavigationBarThemeData(
         elevation: 0,
         backgroundColor: Colors.transparent,
-        indicatorColor: accent.withOpacity(isDark ? 0.18 : 0.14),
+        indicatorColor: accent.withValues(alpha: isDark ? 0.18 : 0.14),
         labelTextStyle: WidgetStateProperty.resolveWith((states) {
           return TextStyle(
             color: states.contains(WidgetState.selected)
@@ -197,9 +198,9 @@ class AppTheme {
       ),
       sliderTheme: SliderThemeData(
         activeTrackColor: accent,
-        inactiveTrackColor: accent.withOpacity(0.12),
+        inactiveTrackColor: accent.withValues(alpha: 0.12),
         thumbColor: accent,
-        overlayColor: accent.withOpacity(0.1),
+        overlayColor: accent.withValues(alpha: 0.1),
         trackHeight: 5,
         thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 9),
         overlayShape: const RoundSliderOverlayShape(overlayRadius: 18),
@@ -211,7 +212,7 @@ class AppTheme {
         }),
         trackColor: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) return accent;
-          return accent.withOpacity(0.15);
+          return accent.withValues(alpha: 0.15);
         }),
         trackOutlineColor: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) return accent;
@@ -231,7 +232,7 @@ class AppTheme {
         style: ButtonStyle(
           backgroundColor: WidgetStateProperty.resolveWith((states) {
             if (states.contains(WidgetState.selected)) {
-              return accent.withOpacity(isDark ? 0.22 : 0.14);
+              return accent.withValues(alpha: isDark ? 0.22 : 0.14);
             }
             return Colors.transparent;
           }),
